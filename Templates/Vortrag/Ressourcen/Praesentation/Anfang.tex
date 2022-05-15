@@ -1,0 +1,258 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% EINSTELLUNGEN
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\input{./Ressourcen/_Informationen.tex}
+
+\newcommand{\PraesentationSeitenrand}{8.9mm}
+\newcommand\crule[3][black]{\textcolor{#1}{\rule{#2}{#3}}}
+
+\newlength\smallerbaselineskip
+\setlength{\smallerbaselineskip}{0.8\baselineskip}
+
+    % Blautöne:
+\definecolor{TUMBlau}{RGB}{0,101,189} % Pantone 300
+\definecolor{TUMBlauDunkel}{RGB}{0,82,147} % Pantone 301
+\definecolor{TUMBlauHell}{RGB}{152,198,234} % Pantone 283
+\definecolor{TUMBlauMittel}{RGB}{100,160,200} % Pantone 542
+
+    % Hervorhebung:
+\definecolor{TUMElfenbein}{RGB}{218,215,203} % Pantone 7527 -Elfenbein
+\definecolor{TUMGruen}{RGB}{162,173,0} % Pantone 383 - Grün
+\definecolor{TUMOrange}{RGB}{227,114,34} % Pantone 158 - Orange
+\definecolor{TUMGrau}{gray}{0.6} % Grau 60%
+
+
+\setbeamercolor*{alerted text}{fg=TUMOrange}
+
+\newcommand{\PraesentationSetzeTextfarbe}{
+    \color{PraesentationTextfarbe}
+    \setbeamercolor*{frametitle}{fg=PraesentationTextfarbe}
+    \setbeamercolor*{normal text}{fg=PraesentationTextfarbe}
+    \setbeamercolor{itemize/enumerate body}{fg=PraesentationTextfarbe}
+    \setbeamercolor*{itemize item}{fg=PraesentationTextfarbe}
+}
+
+\newcommand{\PraesentationFarbschemaStandard}{
+    \setbeamercolor*{background canvas}{}
+    \definecolor{PraesentationTextfarbe}{rgb}{0,0,0}
+    \PraesentationSetzeTextfarbe
+}
+
+\newcommand{\PraesentationFarbschemaWeissBlau}{
+    \setbeamercolor*{background canvas}{bg=TUMBlauDunkel}
+    \definecolor{PraesentationTextfarbe}{rgb}{1,1,1}
+    \PraesentationSetzeTextfarbe
+}
+
+\newcommand{\PraesentationFarbschemaWeissSchwarz}{
+    \setbeamercolor*{background canvas}{bg=black}
+    \definecolor{PraesentationTextfarbe}{rgb}{1,1,1}
+    \PraesentationSetzeTextfarbe
+}
+
+\newcommand{\PraesentationTitelseiteInhalt}{
+    \begin{textblock*}{\paperwidth}[0,0](0cm,-\PraesentationSeitenrand - 6.5mm)%
+        \color{PraesentationTextfarbe}%
+        \frametitle{\inserttitle}
+        \vspace*{49.4mm}
+        \usebeamerfont{author}\insertauthor\\
+        \usebeamerfont{date}\insertdate%
+    \end{textblock*}
+}
+
+\newcommand{\PraesentationSeitenkopfInhalt}[1]{
+    \vspace*{31.7mm}%
+    \begin{textblock*}{1.68cm}[1,0](\paperwidth - \PraesentationSeitenrand - \PraesentationSeitenrand, 0cm)%
+        \includegraphics[width=1.68cm]{#1}%
+    \end{textblock*}
+    \begin{textblock*}{3cm}[1,0](\paperwidth - \PraesentationSeitenrand, -\PraesentationSeitenrand)%
+        \hbox{%
+            \color{PraesentationTextfarbe}
+            %\hbox{\insertframenavigationsymbol}%
+            %\hbox{\insertsubsectionnavigationsymbol}%
+            %\hbox{\insertsectionnavigationsymbol}%
+        }%
+    \end{textblock*}%
+}
+
+
+\newcommand{\PraesentationStartseiteUhrenturm}{
+    \setbeamertemplate{title page}{%
+        \PraesentationSeitenkopfInhalt{./Ressourcen/_Bilder/Universitaet_Logo_RGB.pdf}
+        \begin{textblock*}{10.82cm}[0,1](0.9mm, \paperheight - 9mm)%
+            \includegraphics{./Ressourcen/Praesentation/Bilder/TUM_Uhrenturm.png}%
+        \end{textblock*}
+        \PraesentationTitelseiteInhalt
+    }
+}
+
+\newcommand{\PraesentationStartseiteFlaggen}{
+    \setbeamertemplate{title page}{%
+        \begin{textblock*}{\paperwidth}[0,0](-\PraesentationSeitenrand,-\PraesentationSeitenrand)%
+            \includegraphics[height=\paperheight]{./Ressourcen/Praesentation/Bilder/Universitaet_Flaggen.jpg}%
+        \end{textblock*}
+         \begin{textblock*}{\paperwidth}[0,0](0cm, -7.8mm)%
+           \color{PraesentationTextfarbe}\fontsize{8pt}{10pt}\selectfont%
+            \LehrstuhlName\\%
+            \FakultaetName\\%
+            \UniversitaetName\\%
+            \normalcolor\normalsize\selectfont%
+        \end{textblock*}%
+                 \begin{textblock*}{\paperwidth}[0,0](0cm, 20mm)%
+           \color{PraesentationTextfarbe}\fontsize{30pt}{30pt}\selectfont%
+            \inserttitle
+            \normalcolor\normalsize\selectfont%
+        \end{textblock*}%
+        \PraesentationSeitenkopfInhalt{./Ressourcen/_Bilder/Universitaet_Logo_weiss.pdf}
+        \PraesentationTitelseiteInhalt
+    }
+}
+
+\newcommand{\PraesentationStartseiteLeer}{
+    \setbeamertemplate{title page}{%
+        \PraesentationSeitenkopfInhalt{./Ressourcen/_Bilder/Universitaet_Logo_weiss.pdf}
+        \PraesentationTitelseiteInhalt
+    }
+}
+
+
+\newcommand{\PraesentationMasterStandard}{
+    \PraesentationFarbschemaStandard
+
+    \PraesentationStartseiteUhrenturm
+
+    \setbeamertemplate{headline}{
+        \PraesentationSeitenkopfInhalt{./Ressourcen/_Bilder/Universitaet_Logo_RGB.pdf}
+    }
+}
+
+\newcommand{\PraesentationMasterWeissBlau}{
+    \PraesentationFarbschemaWeissBlau
+
+    \PraesentationStartseiteLeer
+
+    \setbeamertemplate{headline}{
+        \PraesentationSeitenkopfInhalt{./Ressourcen/_Bilder/Universitaet_Logo_weiss.pdf}
+    }
+}
+
+\newcommand{\PraesentationMasterKopfzeileDreizeiler}{
+    \PraesentationFarbschemaStandard
+
+    \setbeamertemplate{title page}{%
+        \begin{textblock*}{10.82cm}[0,1](0.9mm, \paperheight - 9mm)%
+            \includegraphics{./Ressourcen/Praesentation/Bilder/TUM_Uhrenturm.png}%
+        \end{textblock*}
+        \begin{textblock*}{\paperwidth}[0,0](0cm, -7.8mm)%
+            \color{TUMBlau}\fontsize{7pt}{10pt}\selectfont%
+            \LehrstuhlName\\%
+            \FakultaetName\\%
+            \UniversitaetName\\%
+            \normalcolor\normalsize\selectfont%
+        \end{textblock*}%
+        \PraesentationSeitenkopfInhalt{./Ressourcen/_Bilder/Universitaet_Logo_RGB.pdf}
+        \PraesentationTitelseiteInhalt
+    }
+
+    \setbeamertemplate{headline}{
+        \begin{textblock*}{\paperwidth}[0,0](0cm, -7.8mm)%
+            \color{TUMBlau}\fontsize{8pt}{10pt}\selectfont%
+            \LehrstuhlName\\%
+            \FakultaetName\\%
+            \UniversitaetName\\%
+            \normalcolor\normalsize\selectfont%
+        \end{textblock*}%
+        \PraesentationSeitenkopfInhalt{./Ressourcen/_Bilder/Universitaet_Logo_RGB.pdf}
+    }
+}
+
+\newcommand{\PraesentationMasterWeissSchwarz}{
+    \PraesentationFarbschemaWeissSchwarz
+
+    \setbeamertemplate{title page}{%
+        \PraesentationTitelseiteInhalt
+        \PraesentationSeitenkopfInhalt{./Ressourcen/_Bilder/Universitaet_Logo_weiss.pdf}
+    }
+
+    \setbeamertemplate{headline}{
+        \PraesentationSeitenkopfInhalt{./Ressourcen/_Bilder/Universitaet_Logo_weiss.pdf}
+    }
+}
+
+\newcommand{\PraesentationTitelseite}{\frame[plain]{\titlepage}}
+\newcommand{\PraesentationUeberschriftZweizeilig}[2]{\frametitle{#1\\[8mm]#2}}
+
+\usepackage[
+    orientation=portrait,
+    size=custom,
+    width=25.4,
+    height=19.05,
+    scale=0.63 % erzeugt 16pt Schriftgröße
+]{beamerposter}
+\setbeamersize{
+    text margin left=\PraesentationSeitenrand,
+    text margin right=\PraesentationSeitenrand
+}
+
+\setbeamertemplate{frametitle}{%
+    {\rule{0pt}{30mm}\fontsize{31}{\baselineskip}\selectfont\insertframetitle\newline}%\vspace*{-2mm}}%
+}
+
+% Aufzählungen:
+\newcommand{\PraesentationAufzaehlungEbeneEinsSymbol}{\raise2pt\hbox{\donotcoloroutermaths\usebeamercolor{itemize subitem}\fontsize{10pt}{8pt}$\bullet$}}
+\newcommand{\PraesentationAufzaehlungEbeneZweiSymbol}{\raise1.25pt\hbox{\donotcoloroutermaths\usebeamercolor{itemize subitem}$-$}}
+\setbeamertemplate{itemize items}[circle]
+\setbeamertemplate{itemize subitem}[triangle]
+\setbeamercolor{itemize subitem}{fg=black}
+\setbeamerfont{itemize/enumerate subbody}{size=\normalsize}
+\setbeamertemplate{itemize item}{\PraesentationAufzaehlungEbeneEinsSymbol}
+\setbeamertemplate{itemize subitem}{\PraesentationAufzaehlungEbeneZweiSymbol{}}
+%\addtolength{\leftmarginii}{16mm-2pt}%
+
+\newenvironment{PraesentationAufzaehlung}
+{%
+    \vspace{-\baselineskip}%
+    \begin{itemize}%
+        \setlength{\itemsep}{0pt}%
+        \setlength{\parskip}{0pt}%
+        \setlength{\parsep}{0pt}%
+        \addtolength{\itemindent}{-1ex}%
+}{%
+    \end{itemize}%
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% DOKUMENT
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% PDF-Einstellungen:
+\hypersetup{
+    pdfstartview={Fit},
+    pdfproducer={\AllgemeinErsteller},
+    pdfcreator={\AllgemeinGestalter}
+}
+
+\textblockorigin{\PraesentationSeitenrand}{\PraesentationSeitenrand} % Ursprung für Positionierung
+
+\setbeamerfont{footnote}{size=\fontsize{12}{20}}
+
+\setbeamertemplate{footline}{
+    \hbox{%
+        \usebeamerfont{footnote}%
+        \begin{beamercolorbox}[wd=.9\paperwidth]{}%
+            \hspace*{\PraesentationSeitenrand}%
+            \PersonTitel{} \PersonVorname~\PersonNachname~(\UniversitaetAbkuerzung) \PraesentationFusszeileZusatz{}%
+        \end{beamercolorbox}%
+        \begin{beamercolorbox}[wd=.1\paperwidth]{}%
+            \insertframenumber{}%
+            \raggedleft
+            \hspace*{\PraesentationSeitenrand}%
+        \end{beamercolorbox}%
+        \vspace*{3.25mm}%
+    }%
+}
+
+\setbeamertemplate{navigation symbols}{}
+

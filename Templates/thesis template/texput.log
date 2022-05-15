@@ -1,0 +1,18 @@
+This is XeTeX, Version 3.14159265-2.6-0.99991 (MiKTeX 2.9) (preloaded format=xelatex 2015.4.7)  25 JAN 2017 08:39
+entering extended mode
+**master's_thesis.tex
+! Emergency stop.
+<*> master's_thesis.tex
+                       
+*** (job aborted, no legal \end found)
+
+ 
+Here is how much of TeX's memory you used:
+ 0 strings out of 428790
+ 19 string characters out of 3163802
+ 51683 words of memory out of 3000000
+ 3410 multiletter control sequences out of 15000+200000
+ 3640 words of font info for 14 fonts, out of 3000000 for 9000
+ 1096 hyphenation exceptions out of 8191
+ 0i,0n,0p,1b,6s stack positions out of 5000i,500n,10000p,200000b,50000s
+No pages of output.

@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from layers.Transformer_EncDec import Decoder, DecoderLayer, Encoder, EncoderLayer, ConvLayer
 from layers.SelfAttention_Family import FullAttention, AttentionLayer
-from layers.Embed import DataEmbedding,DataEmbedding_wo_pos,DataEmbedding_wo_temp,DataEmbedding_wo_pos_temp
+from layers.Embed import DataEmbedding,DataEmbedding_wo_pos,DataEmbedding_wo_temp,DataEmbedding_wo_pos_temp,DataEmbedding_wo_temp_value
 import numpy as np
 
 
@@ -18,9 +18,9 @@ class Model(nn.Module):
 
         # Embedding
         if configs.embed_type == 0:
-            self.enc_embedding = DataEmbedding(configs.enc_in, configs.d_model, configs.embed, configs.freq,
+            self.enc_embedding = DataEmbedding_wo_temp_value(configs.enc_in, configs.d_model, configs.embed, configs.freq,
                                             configs.dropout)
-            self.dec_embedding = DataEmbedding(configs.dec_in, configs.d_model, configs.embed, configs.freq,
+            self.dec_embedding = DataEmbedding_wo_temp_value(configs.dec_in, configs.d_model, configs.embed, configs.freq,
                                            configs.dropout)
         elif configs.embed_type == 1:
             self.enc_embedding = DataEmbedding(configs.enc_in, configs.d_model, configs.embed, configs.freq,

@@ -18,9 +18,9 @@ class Model(nn.Module):
 
         # Embedding
         if configs.embed_type == 0:
-            self.enc_embedding = DataEmbedding_wo_temp_value(configs.enc_in, configs.d_model, configs.embed, configs.freq,
+            self.enc_embedding = DataEmbedding(configs.enc_in, configs.d_model, configs.embed, configs.freq,
                                             configs.dropout)
-            self.dec_embedding = DataEmbedding_wo_temp_value(configs.dec_in, configs.d_model, configs.embed, configs.freq,
+            self.dec_embedding = DataEmbedding(configs.dec_in, configs.d_model, configs.embed, configs.freq,
                                            configs.dropout)
         elif configs.embed_type == 1:
             self.enc_embedding = DataEmbedding(configs.enc_in, configs.d_model, configs.embed, configs.freq,

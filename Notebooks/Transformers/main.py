@@ -21,8 +21,6 @@ if __name__ == "__main__":
 
     # data loader
     parser.add_argument('--data', type=str, required=False, default='btc_usd', help='dataset type')
-    parser.add_argument('--root_path', type=str, default='./data/', help='root path of the data file')
-    parser.add_argument('--data_path', type=str, default='cleaned_data.csv', help='data file')
     parser.add_argument('--features', type=str, default='S',
                         help='forecasting task, options:[M, S, MS]; M:multivariate predict multivariate, S:univariate predict univariate, MS:multivariate predict univariate')
     parser.add_argument('--target', type=str, default='close', help='target feature in S or MS task')

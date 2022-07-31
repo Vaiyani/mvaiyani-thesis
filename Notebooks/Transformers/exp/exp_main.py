@@ -1,4 +1,4 @@
-from data_provider.data_factory import data_provider
+from data import data_provider
 from exp.exp_basic import Exp_Basic
 from models import Informer, Autoformer, Transformer
 from utils.tools import EarlyStopping, adjust_learning_rate, visual, test_params_flop
@@ -61,24 +61,11 @@ class Exp_Main(Exp_Basic):
                 dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
                 dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
                 # encoder - decoder
-                if self.args.use_amp:
-                    with torch.cuda.amp.autocast():
-                        if 'DLinear' in self.args.model:
-                            outputs = self.model(batch_x)
-                        else:
-                            if self.args.output_attention:
-                                outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
-                            else:
-                                outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-                else:
-                    if 'DLinear' in self.args.model:
-                        outputs = self.model(batch_x)
-                    else:
-                        if self.args.output_attention:
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
-                        else:
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+
+                outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+
                 f_dim = -1 if self.args.features == 'MS' else 0
+
                 outputs = outputs[:, -self.args.pred_len:, f_dim:]
                 batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
 
@@ -93,12 +80,10 @@ class Exp_Main(Exp_Basic):
         return total_loss
 
     def train(self, setting):
-        # print(self.device)
-        # assert 1 == 0
+
         train_data, train_loader = self._get_data(flag='train')
-        vali_data, vali_loader = self._get_data(flag='val')
+        # vali_data, vali_loader = self._get_data(flag='val')
         test_data, test_loader = self._get_data(flag='test')
-        # train_loader[0]
         path = os.path.join(self.args.checkpoints, setting)
         if not os.path.exists(path):
             os.makedirs(path)
@@ -124,71 +109,31 @@ class Exp_Main(Exp_Basic):
                 iter_count += 1
                 model_optim.zero_grad()
                 batch_x = batch_x.float().to(self.device)
-
                 batch_y = batch_y.float().to(self.device)
                 batch_x_mark = batch_x_mark.float().to(self.device)
                 batch_y_mark = batch_y_mark.float().to(self.device)
-
                 # decoder input
                 dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
                 dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
-
-                # encoder - decoder
-                # if self.args.use_amp:
-                #     with torch.cuda.amp.autocast():
-                #         if 'DLinear' in self.args.model:
-                #             outputs = self.model(batch_x)
-                #         else:
-                #             if self.args.output_attention:
-                #                 outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
-                #             else:
-                #                 outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-                #
-                #         f_dim = -1 if self.args.features == 'MS' else 0
-                #         outputs = outputs[:, -self.args.pred_len:, f_dim:]
-                #         batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
-                #         loss = criterion(outputs, batch_y)
-                #         train_loss.append(loss.item())
-                # else:
-                #     if 'DLinear' in self.args.model:
-                #             outputs = self.model(batch_x)
-                #     else:
-                #         if self.args.output_attention:
-                #             outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
-                #
-                #         else:
                 outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark, batch_y)
-                    # print(outputs.shape,batch_y.shape)
                 f_dim = -1 if self.args.features == 'MS' else 0
                 outputs = outputs[:, -self.args.pred_len:, f_dim:]
                 batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
                 loss = criterion(outputs, batch_y)
-                train_loss.append(loss.item())
-
                 if (i + 1) % 100 == 0:
                     print("\titers: {0}, epoch: {1} | loss: {2:.7f}".format(i + 1, epoch + 1, loss.item()))
-                    speed = (time.time() - time_now) / iter_count
-                    left_time = speed * ((self.args.train_epochs - epoch) * train_steps - i)
-                    print('\tspeed: {:.4f}s/iter; left time: {:.4f}s'.format(speed, left_time))
                     iter_count = 0
-                    time_now = time.time()
-
-                # if self.args.use_amp:
-                #     scaler.scale(loss).backward()
-                #     scaler.step(model_optim)
-                #     scaler.update()
-                # else:
                 loss.backward()
                 model_optim.step()
+                train_loss.append(loss.item())
 
             print("Epoch: {} cost time: {}".format(epoch + 1, time.time() - epoch_time))
             train_loss = np.average(train_loss)
-            vali_loss = self.vali(vali_data, vali_loader, criterion)
             test_loss = self.vali(test_data, test_loader, criterion)
 
-            print("Epoch: {0}, Steps: {1} | Train Loss: {2:.7f} Vali Loss: {3:.7f} Test Loss: {4:.7f}".format(
-                epoch + 1, train_steps, train_loss, vali_loss, test_loss))
-            early_stopping(vali_loss, self.model, path)
+            print("Epoch: {0}, Steps: {1} | Train Loss: {2:.7f} Test Loss: {3:.7f}".format(
+                epoch + 1, train_steps, train_loss, test_loss))
+            early_stopping(test_loss, self.model, path)
             if early_stopping.early_stop:
                 print("Early stopping")
                 break
@@ -227,24 +172,11 @@ class Exp_Main(Exp_Basic):
                 dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
                 dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
                 # encoder - decoder
-                if self.args.use_amp:
-                    with torch.cuda.amp.autocast():
-                        if 'DLinear' in self.args.model:
-                            outputs = self.model(batch_x)
-                        else:
-                            if self.args.output_attention:
-                                outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
-                            else:
-                                outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-                else:
-                    if 'DLinear' in self.args.model:
-                            outputs = self.model(batch_x)
-                    else:
-                        if self.args.output_attention:
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
+                if self.args.output_attention:
+                    outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
 
-                        else:
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                else:
+                    outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
 
                 f_dim = -1 if self.args.features == 'MS' else 0
                 # print(outputs.shape,batch_y.shape)

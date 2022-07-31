@@ -9,17 +9,14 @@ class Dataset_BTC_hour(Dataset):
                  features='S',
                  target='close', scale=True, timeenc=0, freq='h'):
 
-        if size == None:
-            self.seq_len = 24 * 4 * 4
-            self.label_len = 24 * 4
-            self.pred_len = 24 * 4
-        else:
-            self.seq_len = size[0]
-            self.label_len = size[1]
-            self.pred_len = size[2]
+
+        self.seq_len = size[0]
+        self.label_len = size[1]
+        self.pred_len = size[2]
         # init
+
         assert flag in ['train', 'test', 'val']
-        type_map = {'train': 0, 'val': 1, 'test': 2}
+        type_map = {'train': 0, 'val': 1, 'test': 1}
         self.set_type = type_map[flag]
 
         self.features = features
@@ -35,8 +32,8 @@ class Dataset_BTC_hour(Dataset):
         df_raw = pd.read_csv('cleaned_data.csv')
 
         num_data_points = len(df_raw)
-        border1s = [0, int(num_data_points*0.8) - self.seq_len, int(num_data_points*0.9) - self.seq_len]
-        border2s = [int(num_data_points*0.8), int(num_data_points*0.9), num_data_points-1]
+        border1s = [0, int(num_data_points*0.9) - self.seq_len]
+        border2s = [int(num_data_points*0.9), num_data_points-1]
         border1 = border1s[self.set_type]
         border2 = border2s[self.set_type]
         if self.features == 'M' or self.features == 'MS':
@@ -66,7 +63,7 @@ class Dataset_BTC_hour(Dataset):
             data_stamp = data_stamp.transpose(1, 0)
 
         self.data_x = data[border1:border2]
-        self.data_y = data[border1:border2]
+        self.data_y = data[border1+1:border2+1]
         self.data_stamp = data_stamp
 
     def __getitem__(self, index):
@@ -79,7 +76,6 @@ class Dataset_BTC_hour(Dataset):
         seq_y = self.data_y[r_begin:r_end]
         seq_x_mark = self.data_stamp[s_begin:s_end]
         seq_y_mark = self.data_stamp[r_begin:r_end]
-
         return seq_x, seq_y, seq_x_mark, seq_y_mark
 
     def __len__(self):

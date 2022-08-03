@@ -1,7 +1,7 @@
 from data_flow import data_provider
 from exp.exp_basic import Exp_Basic
 from models import Informer, Autoformer, Transformer
-from utils.tools import EarlyStopping, adjust_learning_rate, visual, test_params_flop
+from utils.tools import EarlyStopping, adjust_learning_rate, visual
 from utils.metrics import metric
 
 import numpy as np
@@ -59,23 +59,24 @@ class Exp_Main(Exp_Basic):
                 dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
                 dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
                 # encoder - decoder
-                if self.args.use_amp:
-                    with torch.cuda.amp.autocast():
-                        if 'DLinear' in self.args.model:
-                            outputs = self.model(batch_x)
-                        else:
-                            if self.args.output_attention:
-                                outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
-                            else:
-                                outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-                else:
-                    if 'DLinear' in self.args.model:
-                        outputs = self.model(batch_x)
-                    else:
-                        if self.args.output_attention:
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
-                        else:
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                # if self.args.use_amp:
+                #     with torch.cuda.amp.autocast():
+                #         if 'DLinear' in self.args.model:
+                #             outputs = self.model(batch_x)
+                #         else:
+                #             if self.args.output_attention:
+                #                 outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
+                #             else:
+                #                 outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                # else:
+                #     if 'DLinear' in self.args.model:
+                #         outputs = self.model(batch_x)
+                #     else:
+                #         if self.args.output_attention:
+                #             outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
+                #         else:
+                #             outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
                 f_dim = -1 if self.args.features == 'MS' else 0
                 outputs = outputs[:, -self.args.pred_len:, f_dim:]
                 batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
@@ -130,36 +131,37 @@ class Exp_Main(Exp_Basic):
                 dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
 
                 # encoder - decoder
-                if self.args.use_amp:
-                    with torch.cuda.amp.autocast():
-                        if 'DLinear' in self.args.model:
-                            outputs = self.model(batch_x)
-                        else:
-                            if self.args.output_attention:
-                                outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
-                            else:
-                                outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-
-                        f_dim = -1 if self.args.features == 'MS' else 0
-                        outputs = outputs[:, -self.args.pred_len:, f_dim:]
-                        batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
-                        loss = criterion(outputs, batch_y)
-                        train_loss.append(loss.item())
-                else:
-                    if 'DLinear' in self.args.model:
-                            outputs = self.model(batch_x)
-                    else:
-                        if self.args.output_attention:
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
-                            
-                        else:
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark, batch_y)
+                # if self.args.use_amp:
+                #     with torch.cuda.amp.autocast():
+                #         if 'DLinear' in self.args.model:
+                #             outputs = self.model(batch_x)
+                #         else:
+                #             if self.args.output_attention:
+                #                 outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
+                #             else:
+                #                 outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                #
+                #         f_dim = -1 if self.args.features == 'MS' else 0
+                #         outputs = outputs[:, -self.args.pred_len:, f_dim:]
+                #         batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
+                #         loss = criterion(outputs, batch_y)
+                #         train_loss.append(loss.item())
+                # else:
+                #     if 'DLinear' in self.args.model:
+                #             outputs = self.model(batch_x)
+                #     else:
+                #         if self.args.output_attention:
+                #             outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
+                #
+                #         else:
+                #             outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark, batch_y)
+                outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark, batch_y)
                     # print(outputs.shape,batch_y.shape)
-                    f_dim = -1 if self.args.features == 'MS' else 0
-                    outputs = outputs[:, -self.args.pred_len:, f_dim:]
-                    batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
-                    loss = criterion(outputs, batch_y)
-                    train_loss.append(loss.item())
+                f_dim = -1 if self.args.features == 'MS' else 0
+                outputs = outputs[:, -self.args.pred_len:, f_dim:]
+                batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
+                loss = criterion(outputs, batch_y)
+                train_loss.append(loss.item())
 
                 if (i + 1) % 100 == 0:
                     print("\titers: {0}, epoch: {1} | loss: {2:.7f}".format(i + 1, epoch + 1, loss.item()))
@@ -223,25 +225,25 @@ class Exp_Main(Exp_Basic):
                 dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
                 dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
                 # encoder - decoder
-                if self.args.use_amp:
-                    with torch.cuda.amp.autocast():
-                        if 'DLinear' in self.args.model:
-                            outputs = self.model(batch_x)
-                        else:
-                            if self.args.output_attention:
-                                outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
-                            else:
-                                outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-                else:
-                    if 'DLinear' in self.args.model:
-                            outputs = self.model(batch_x)
-                    else:
-                        if self.args.output_attention:
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
-
-                        else:
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-
+                # if self.args.use_amp:
+                #     with torch.cuda.amp.autocast():
+                #         if 'DLinear' in self.args.model:
+                #             outputs = self.model(batch_x)
+                #         else:
+                #             if self.args.output_attention:
+                #                 outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
+                #             else:
+                #                 outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                # else:
+                #     if 'DLinear' in self.args.model:
+                #             outputs = self.model(batch_x)
+                #     else:
+                #         if self.args.output_attention:
+                #             outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
+                #
+                #         else:
+                #             outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
                 f_dim = -1 if self.args.features == 'MS' else 0
                 # print(outputs.shape,batch_y.shape)
                 outputs = outputs[:, -self.args.pred_len:, f_dim:]
@@ -261,9 +263,9 @@ class Exp_Main(Exp_Basic):
                     pd = np.concatenate((input[0, :, -1], pred[0, :, -1]), axis=0)
                     visual(gt, pd, os.path.join(folder_path, str(i) + '.pdf'))
 
-        if self.args.test_flop:
-            test_params_flop((batch_x.shape[1],batch_x.shape[2]))
-            exit()
+        # if self.args.test_flop:
+        #     test_params_flop((batch_x.shape[1],batch_x.shape[2]))
+        #     exit()
         preds = np.array(preds)
         trues = np.array(trues)
         inputx = np.array(inputx)

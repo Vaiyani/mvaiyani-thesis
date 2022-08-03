@@ -48,8 +48,10 @@ class Model(nn.Module):
             [
                 EncoderLayer(
                     AttentionLayer(
-                        FullAttention(False, configs.factor, attention_dropout=configs.dropout,
-                                      output_attention=configs.output_attention), configs.d_model, configs.n_heads),
+                        FullAttention(False, configs.factor
+                                      ,attention_dropout=configs.dropout
+                                      # ,output_attention=configs.output_attention
+                                      ), configs.d_model, configs.n_heads),
                     configs.d_model,
                     configs.d_ff,
                     dropout=configs.dropout,
@@ -88,7 +90,7 @@ class Model(nn.Module):
         dec_out = self.dec_embedding(x_dec, x_mark_dec)
         dec_out = self.decoder(dec_out, enc_out, x_mask=dec_self_mask, cross_mask=dec_enc_mask)
 
-        if self.output_attention:
-            return dec_out[:, -self.pred_len:, :], attns
-        else:
-            return dec_out[:, -self.pred_len:, :]  # [B, L, D]
+        # if self.output_attention:
+        #     return dec_out[:, -self.pred_len:, :], attns
+        # else:
+        return dec_out[:, -self.pred_len:, :]  # [B, L, D]

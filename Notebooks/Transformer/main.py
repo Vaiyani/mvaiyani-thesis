@@ -12,7 +12,7 @@ np.random.seed(fix_seed)
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser(description='Autoformer & Transformer family for Time Series Forecasting')
+    parser = argparse.ArgumentParser(description='Time Series Forecasting With Transformers')
 
     # basic config
     parser.add_argument('--is_training', type=int, required=False, default=1, help='status')
@@ -45,11 +45,11 @@ if __name__ == '__main__':
     parser.add_argument('--e_layers', type=int, default=2, help='num of encoder layers')
     parser.add_argument('--d_layers', type=int, default=1, help='num of decoder layers')
     parser.add_argument('--d_ff', type=int, default=2048, help='dimension of fcn')
-    parser.add_argument('--moving_avg', type=int, default=25, help='window size of moving average')
+    # parser.add_argument('--moving_avg', type=int, default=25, help='window size of moving average')
     parser.add_argument('--factor', type=int, default=1, help='attn factor')
-    parser.add_argument('--distil', action='store_false',
-                        help='whether to use distilling in encoder, using this argument means not using distilling',
-                        default=True)
+    # parser.add_argument('--distil', action='store_false',
+    #                     help='whether to use distilling in encoder, using this argument means not using distilling',
+    #                     default=True)
     parser.add_argument('--dropout', type=float, default=0.05, help='dropout')
     parser.add_argument('--embed', type=str, default='timeF',
                         help='time features encoding, options:[timeF, fixed, learned]')
@@ -94,7 +94,7 @@ if __name__ == '__main__':
     if args.is_training:
         for ii in range(args.itr):
             # setting record of experiments
-            setting = '{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_fc{}_eb{}_dt{}_{}_{}'.format(
+            setting = '{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_fc{}_eb{}_dt{}_{}'.format(
                 args.model_id,
                 args.model,
                 args.features,
@@ -108,7 +108,7 @@ if __name__ == '__main__':
                 args.d_ff,
                 args.factor,
                 args.embed,
-                args.distil,
+                # args.distil,
                 args.des, ii)
 
             exp = Exp(args)  # set experiments

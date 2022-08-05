@@ -1,7 +1,7 @@
 import argparse
 import os
 import torch
-from exp.exp_main import Exp_Main
+from base_model import Exp_Main
 import random
 import numpy as np
 
@@ -53,7 +53,7 @@ parser.add_argument('--output_attention', action='store_true', help='whether to 
 parser.add_argument('--do_predict', action='store_true', help='whether to predict unseen future data')
 
 # optimization
-parser.add_argument('--train_epochs', type=int, default=10, help='train epochs')
+parser.add_argument('--train_epochs', type=int, default=1, help='train epochs')
 parser.add_argument('--batch_size', type=int, default=32, help='batch size of train input data')
 parser.add_argument('--patience', type=int, default=3, help='early stopping patience')
 parser.add_argument('--learning_rate', type=float, default=0.0001, help='optimizer learning rate')
@@ -64,7 +64,6 @@ parser.add_argument('--use_amp', action='store_true', help='use automatic mixed 
 
 # GPU
 parser.add_argument('--use_gpu', type=bool, default=True, help='use gpu')
-parser.add_argument('--gpu', type=int, default=0, help='gpu')
 
 args = parser.parse_args()
 

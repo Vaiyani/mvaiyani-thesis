@@ -58,7 +58,7 @@ class Exp_Main():
                 # encoder - decoder
                 outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
 
-                f_dim = -1 if self.args.features == 'MS' else 0
+                f_dim = 0
                 outputs = outputs[:, -self.args.pred_len:, f_dim:]
                 batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
 
@@ -81,7 +81,6 @@ class Exp_Main():
         if not os.path.exists(path):
             os.makedirs(path)
 
-        time_now = time.time()
 
         train_steps = len(train_loader)
         early_stopping = EarlyStopping(patience=self.args.patience, verbose=True)
@@ -89,8 +88,6 @@ class Exp_Main():
         model_optim = self._select_optimizer()
         criterion = self._select_criterion()
 
-        # if self.args.use_amp:
-        #     scaler = torch.cuda.amp.GradScaler()
 
         for epoch in range(self.args.train_epochs):
             iter_count = 0
@@ -107,6 +104,7 @@ class Exp_Main():
                 batch_x_mark = batch_x_mark.float().to(self.device)
                 batch_y_mark = batch_y_mark.float().to(self.device)
 
+
                 # decoder input
                 dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
                 dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
@@ -115,14 +113,14 @@ class Exp_Main():
                 outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark, batch_y)
 
                     # print(outputs.shape,batch_y.shape)
-                f_dim = -1 if self.args.features == 'MS' else 0
+                f_dim = 0
                 outputs = outputs[:, -self.args.pred_len:, f_dim:]
                 batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
                 loss = criterion(outputs, batch_y)
                 train_loss.append(loss.item())
 
-                if (i + 1) % 100 == 0:
-                    print("\titers: {0}, epoch: {1} | loss: {2:.7f}".format(i + 1, epoch + 1, loss.item()))
+                # if (i + 1) % 100 == 0:
+                #     print("\titers: {0}, epoch: {1} | loss: {2:.7f}".format(i + 1, epoch + 1, loss.item()))
 
                 loss.backward()
                 model_optim.step()
@@ -131,6 +129,8 @@ class Exp_Main():
             train_loss = np.average(train_loss)
             vali_loss = self.vali(vali_data, vali_loader, criterion)
             test_loss = self.vali(test_data, test_loader, criterion)
+            # vali_loss = 0
+            # test_loss = 0
 
             print("Epoch: {0}, Steps: {1} | Train Loss: {2:.7f} Vali Loss: {3:.7f} Test Loss: {4:.7f}".format(
                 epoch + 1, train_steps, train_loss, vali_loss, test_loss))
@@ -193,9 +193,7 @@ class Exp_Main():
                     pd = np.concatenate((input[0, :, -1], pred[0, :, -1]), axis=0)
                     visual(gt, pd, os.path.join(folder_path, str(i) + '.pdf'))
 
-        # if self.args.test_flop:
-        #     test_params_flop((batch_x.shape[1],batch_x.shape[2]))
-        #     exit()
+
         preds = np.array(preds)
         trues = np.array(trues)
         inputx = np.array(inputx)
@@ -219,7 +217,7 @@ class Exp_Main():
         f.close()
 
         # np.save(folder_path + 'metrics.npy', np.array([mae, mse, rmse, mape, mspe,rse, corr]))
-        np.save(folder_path + 'pred.npy', preds)
+        # np.save(folder_path + 'pred.npy', preds)
         # np.save(folder_path + 'true.npy', trues)
         # np.save(folder_path + 'x.npy', inputx)
         return

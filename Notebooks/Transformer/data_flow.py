@@ -6,19 +6,15 @@ from utils.timefeatures import time_features
 
 class Dataset_btc_hour(Dataset):
     def __init__(self, flag='train', size=None,
-                 features='S', data_path='ETTh1.csv',
+                 features='S', data_path='data.csv',
                  target='OT', scale=True, timeenc=0, freq='h'):
-        # size [seq_len, label_len, pred_len]
-        # info
-        if size == None:
-            self.seq_len = 24 * 4 * 4
-            self.label_len = 24 * 4
-            self.pred_len = 24 * 4
-        else:
-            self.seq_len = size[0]
-            self.label_len = size[1]
-            self.pred_len = size[2]
+
+
+        self.seq_len = size[0]
+        self.label_len = size[1]
+        self.pred_len = size[2]
         # init
+
         assert flag in ['train', 'test', 'val']
         type_map = {'train': 0, 'val': 1, 'test': 2}
         self.set_type = type_map[flag]
@@ -124,6 +120,5 @@ def data_provider(args, flag):
         data_set,
         batch_size=batch_size,
         shuffle=shuffle_flag,
-        num_workers=args.num_workers,
         drop_last=drop_last)
     return data_set, data_loader

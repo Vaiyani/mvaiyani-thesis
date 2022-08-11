@@ -16,7 +16,6 @@ parser = argparse.ArgumentParser(description='Time Series Forecasting With Trans
 
 # basic config
 parser.add_argument('--is_training', type=int, required=False, default=1, help='status')
-parser.add_argument('--model_id', type=str, required=False, default='test', help='model id')
 parser.add_argument('--model', type=str, required=False, default='Transformer')
 
 # data loader
@@ -29,13 +28,13 @@ parser.add_argument('--freq', type=str, default='h',
 parser.add_argument('--checkpoints', type=str, default='./checkpoints/', help='location of model checkpoints')
 
 # forecasting task
-parser.add_argument('--seq_len', type=int, default=10, help='input sequence length')
-parser.add_argument('--label_len', type=int, default=5, help='start token length')
+parser.add_argument('--seq_len', type=int, default=10, help='input sequence length - encoder input length')
+parser.add_argument('--label_len', type=int, default=5, help='start token length - decoder input length')
 parser.add_argument('--pred_len', type=int, default=1, help='prediction sequence length')
 
 
 # Formers
-parser.add_argument('--embed_type', type=int, default=0, help='0: default 1: value embedding + temporal embedding + positional embedding 2: value embedding + temporal embedding 3: value embedding + positional embedding 4: value embedding')
+parser.add_argument('--embed_type', type=int, default=0, help='0: positional embedding 1: value embedding + temporal embedding + positional embedding 2: value embedding + temporal embedding 3: value embedding + positional embedding 4: value embedding')
 parser.add_argument('--enc_in', type=int, default=1, help='encoder input size') # DLinear with --individual, use this hyperparameter as the number of channels
 parser.add_argument('--dec_in', type=int, default=1, help='decoder input size')
 parser.add_argument('--c_out', type=int, default=1, help='output size')
@@ -53,7 +52,7 @@ parser.add_argument('--output_attention', action='store_true', help='whether to 
 parser.add_argument('--do_predict', action='store_true', help='whether to predict unseen future data')
 
 # optimization
-parser.add_argument('--train_epochs', type=int, default=1, help='train epochs')
+parser.add_argument('--train_epochs', type=int, default=10, help='train epochs')
 parser.add_argument('--batch_size', type=int, default=32, help='batch size of train input data')
 parser.add_argument('--patience', type=int, default=3, help='early stopping patience')
 parser.add_argument('--learning_rate', type=float, default=0.0001, help='optimizer learning rate')
@@ -76,10 +75,8 @@ print(args)
 
 Exp = Exp_Main
 
-# if __name__ == '__main__':
 if args.is_training:
-    setting = '{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_fc{}_eb{}_dt{}'.format(
-        args.model_id,
+    setting = '{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_fc{}_eb{}_dt{}'.format(
         args.model,
         args.features,
         args.seq_len,
@@ -101,8 +98,7 @@ if args.is_training:
     print('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
     exp.test(setting)
 else:
-    setting = '{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_fc{}_eb{}_dt{}'.format(
-        args.model_id,
+    setting = '{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_fc{}_eb{}_dt{}'.format(
         args.model,
         args.features,
         args.seq_len,

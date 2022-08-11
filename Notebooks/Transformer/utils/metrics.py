@@ -1,5 +1,5 @@
 import numpy as np
-
+from sklearn.metrics import r2_score
 
 def RSE(pred, true):
     return np.sqrt(np.sum((true - pred) ** 2)) / np.sqrt(np.sum((true - true.mean()) ** 2))
@@ -32,7 +32,8 @@ def MSPE(pred, true):
     return np.mean(np.square((pred - true) / true))
 
 def r_square(pred, true):
-    return np.mean(np.square((pred - true) / true))
+    assert 1==1
+    return r2_score(true[:,:,0], pred[:,:,0])
 
 def metric(pred, true):
     mae = MAE(pred, true)

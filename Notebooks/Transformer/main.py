@@ -5,10 +5,10 @@ from base_model import Exp_Main
 import random
 import numpy as np
 
-# fix_seed = 2021
-# random.seed(fix_seed)
-# torch.manual_seed(fix_seed)
-# np.random.seed(fix_seed)
+fix_seed = 0
+random.seed(fix_seed)
+torch.manual_seed(fix_seed)
+np.random.seed(fix_seed)
 
 # if __name__ == '__main__':
 
@@ -52,9 +52,9 @@ parser.add_argument('--output_attention', action='store_true', help='whether to 
 parser.add_argument('--do_predict', action='store_true', help='whether to predict unseen future data')
 
 # optimization
-parser.add_argument('--train_epochs', type=int, default=10, help='train epochs')
+parser.add_argument('--train_epochs', type=int, default=1, help='train epochs')
 parser.add_argument('--batch_size', type=int, default=32, help='batch size of train input data')
-parser.add_argument('--patience', type=int, default=3, help='early stopping patience')
+parser.add_argument('--patience', type=int, default=2, help='early stopping patience')
 parser.add_argument('--learning_rate', type=float, default=0.0001, help='optimizer learning rate')
 parser.add_argument('--des', type=str, default='test', help='exp description')
 parser.add_argument('--loss', type=str, default='mse', help='loss function')
@@ -76,20 +76,14 @@ print(args)
 Exp = Exp_Main
 
 if args.is_training:
-    setting = '{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_fc{}_eb{}_dt{}'.format(
+    setting = '{}_sl{}_ll{}_pl{}_df{}_eb{}'.format(
         args.model,
-        args.features,
         args.seq_len,
         args.label_len,
         args.pred_len,
-        args.d_model,
-        args.n_heads,
-        args.e_layers,
-        args.d_layers,
         args.d_ff,
-        args.factor,
         args.embed,
-        args.des)
+    )
 
     exp = Exp(args)  # set experiments
     print('>>>>>>>start training : {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
@@ -98,20 +92,14 @@ if args.is_training:
     print('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
     exp.test(setting)
 else:
-    setting = '{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_fc{}_eb{}_dt{}'.format(
+    setting = '{}_sl{}_ll{}_pl{}_df{}_eb{}'.format(
         args.model,
-        args.features,
         args.seq_len,
         args.label_len,
         args.pred_len,
-        args.d_model,
-        args.n_heads,
-        args.e_layers,
-        args.d_layers,
         args.d_ff,
-        args.factor,
         args.embed,
-        args.des)
+    )
     exp = Exp(args)  # set experiments
     print('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
     exp.test(setting, test=1)

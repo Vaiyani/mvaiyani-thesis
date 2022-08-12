@@ -31,9 +31,9 @@ class Dataset_btc_hour(Dataset):
     def __read_data__(self):
         self.scaler = StandardScaler()
         df_raw = pd.read_csv(self.data_path)
-
-        border1s = [0, 32925, 37053]
-        border2s = [33021, 37149, 41277]
+        len_ = len(df_raw)
+        border1s = [0, len_*0.8, len_*0.9]
+        border2s = [len_*0.8, len_*0.9, len_*1]
         border1 = border1s[self.set_type]
         border2 = border2s[self.set_type]
 

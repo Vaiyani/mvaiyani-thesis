@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from layers.Transformer_EncDec import Decoder, DecoderLayer, Encoder, EncoderLayer, ConvLayer
 from layers.SelfAttention_Family import FullAttention, AttentionLayer
-from layers.Embed import DataEmbedding,DataEmbedding_wo_pos,DataEmbedding_wo_temp,DataEmbedding_wo_pos_temp, DataEmbedding_wo_temp_value
+from layers.Embed import DataEmbedding
 import numpy as np
 
 
@@ -17,32 +17,34 @@ class Transformer(nn.Module):
         self.output_attention = configs.output_attention
 
         # Embedding
-        if configs.embed_type == 0:
-            self.enc_embedding = DataEmbedding_wo_temp_value(configs.enc_in, configs.d_model, configs.embed, configs.freq,
-                                            configs.dropout)
-            self.dec_embedding = DataEmbedding_wo_temp_value(configs.dec_in, configs.d_model, configs.embed, configs.freq,
-                                           configs.dropout)
-        elif configs.embed_type == 1:
-            self.enc_embedding = DataEmbedding(configs.enc_in, configs.d_model, configs.embed, configs.freq,
-                                                    configs.dropout)
-            self.dec_embedding = DataEmbedding(configs.dec_in, configs.d_model, configs.embed, configs.freq,
-                                                    configs.dropout)
-        elif configs.embed_type == 2:
-            self.enc_embedding = DataEmbedding_wo_pos(configs.enc_in, configs.d_model, configs.embed, configs.freq,
-                                                    configs.dropout)
-            self.dec_embedding = DataEmbedding_wo_pos(configs.dec_in, configs.d_model, configs.embed, configs.freq,
-                                                    configs.dropout)
-
-        elif configs.embed_type == 3:
-            self.enc_embedding = DataEmbedding_wo_temp(configs.enc_in, configs.d_model, configs.embed, configs.freq,
-                                                    configs.dropout)
-            self.dec_embedding = DataEmbedding_wo_temp(configs.dec_in, configs.d_model, configs.embed, configs.freq,
-                                                    configs.dropout)
-        elif configs.embed_type == 4:
-            self.enc_embedding = DataEmbedding_wo_pos_temp(configs.enc_in, configs.d_model, configs.embed, configs.freq,
-                                                    configs.dropout)
-            self.dec_embedding = DataEmbedding_wo_pos_temp(configs.dec_in, configs.d_model, configs.embed, configs.freq,
-                                                    configs.dropout)
+        # if configs.embed_type == 0:
+        self.enc_embedding = DataEmbedding(configs.enc_in, configs.d_model, configs.positional_embedding,
+                                           configs.value_embedding, configs.temporal_embedding, configs.embed,
+                                           configs.freq, configs.dropout)
+        self.dec_embedding = DataEmbedding(configs.enc_in, configs.d_model, configs.positional_embedding,
+                                           configs.value_embedding, configs.temporal_embedding, configs.embed,
+                                           configs.freq, configs.dropout)
+        # elif configs.embed_type == 1:
+        #     self.enc_embedding = DataEmbedding(configs.enc_in, configs.d_model, configs.embed, configs.freq,
+        #                                             configs.dropout)
+        #     self.dec_embedding = DataEmbedding(configs.dec_in, configs.d_model, configs.embed, configs.freq,
+        #                                             configs.dropout)
+        # elif configs.embed_type == 2:
+        #     self.enc_embedding = DataEmbedding_wo_pos(configs.enc_in, configs.d_model, configs.embed, configs.freq,
+        #                                             configs.dropout)
+        #     self.dec_embedding = DataEmbedding_wo_pos(configs.dec_in, configs.d_model, configs.embed, configs.freq,
+        #                                             configs.dropout)
+        #
+        # elif configs.embed_type == 3:
+        #     self.enc_embedding = DataEmbedding_wo_temp(configs.enc_in, configs.d_model, configs.embed, configs.freq,
+        #                                             configs.dropout)
+        #     self.dec_embedding = DataEmbedding_wo_temp(configs.dec_in, configs.d_model, configs.embed, configs.freq,
+        #                                             configs.dropout)
+        # elif configs.embed_type == 4:
+        #     self.enc_embedding = DataEmbedding_wo_pos_temp(configs.enc_in, configs.d_model, configs.embed, configs.freq,
+        #                                             configs.dropout)
+        #     self.dec_embedding = DataEmbedding_wo_pos_temp(configs.dec_in, configs.d_model, configs.embed, configs.freq,
+        #                                             configs.dropout)
         # Encoder
         self.encoder = Encoder(
             [

@@ -34,7 +34,10 @@ parser.add_argument('--pred_len', type=int, default=1, help='prediction sequence
 
 
 # Formers
-parser.add_argument('--embed_type', type=int, default=0, help='0: positional embedding 1: value embedding + temporal embedding + positional embedding 2: value embedding + temporal embedding 3: value embedding + positional embedding 4: value embedding')
+parser.add_argument('--positional_embedding', default=True)
+parser.add_argument('--value_embedding', default=True)
+parser.add_argument('--temporal_embedding', default=True)
+
 parser.add_argument('--enc_in', type=int, default=1, help='encoder input size') # DLinear with --individual, use this hyperparameter as the number of channels
 parser.add_argument('--dec_in', type=int, default=1, help='decoder input size')
 parser.add_argument('--c_out', type=int, default=1, help='output size')
@@ -76,13 +79,15 @@ print(args)
 Exp = Exp_Main
 
 if args.is_training:
-    setting = '{}_sl{}_ll{}_pl{}_df{}_eb{}'.format(
+    setting = '{}_sl{}_ll{}_pl{}_df{}_pos{}_val{}_temp{}'.format(
         args.model,
         args.seq_len,
         args.label_len,
         args.pred_len,
         args.d_ff,
-        args.embed,
+        args.positional_embedding,
+        args.value_embedding,
+        args.temporal_embedding
     )
 
     exp = Exp(args)  # set experiments
@@ -92,13 +97,15 @@ if args.is_training:
     print('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
     exp.test(setting)
 else:
-    setting = '{}_sl{}_ll{}_pl{}_df{}_eb{}'.format(
+    setting = '{}_sl{}_ll{}_pl{}_df{}_pos{}_val{}_temp{}'.format(
         args.model,
         args.seq_len,
         args.label_len,
         args.pred_len,
         args.d_ff,
-        args.embed,
+        args.positional_embedding,
+        args.value_embedding,
+        args.temporal_embedding
     )
     exp = Exp(args)  # set experiments
     print('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))

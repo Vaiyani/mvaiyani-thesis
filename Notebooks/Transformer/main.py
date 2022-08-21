@@ -29,14 +29,14 @@ parser.add_argument('--checkpoints', type=str, default='./checkpoints/', help='l
 
 # forecasting task
 parser.add_argument('--seq_len', type=int, default=10, help='input sequence length - encoder input length')
-parser.add_argument('--label_len', type=int, default=5, help='start token length - decoder input length')
+parser.add_argument('--label_len', type=int, default=48, help='start token length - decoder input length')
 parser.add_argument('--pred_len', type=int, default=1, help='prediction sequence length')
 
 
 # Formers
 parser.add_argument('--positional_embedding', default=True)
-parser.add_argument('--value_embedding', default=True)
-parser.add_argument('--temporal_embedding', default=True)
+parser.add_argument('--value_embedding', default=False)
+parser.add_argument('--temporal_embedding', default=False)
 
 parser.add_argument('--enc_in', type=int, default=1, help='encoder input size') # DLinear with --individual, use this hyperparameter as the number of channels
 parser.add_argument('--dec_in', type=int, default=1, help='decoder input size')
@@ -55,9 +55,9 @@ parser.add_argument('--output_attention', action='store_true', help='whether to 
 parser.add_argument('--do_predict', action='store_true', help='whether to predict unseen future data')
 
 # optimization
-parser.add_argument('--train_epochs', type=int, default=1, help='train epochs')
+parser.add_argument('--train_epochs', type=int, default=30, help='train epochs')
 parser.add_argument('--batch_size', type=int, default=32, help='batch size of train input data')
-parser.add_argument('--patience', type=int, default=2, help='early stopping patience')
+parser.add_argument('--patience', type=int, default=3, help='early stopping patience')
 parser.add_argument('--learning_rate', type=float, default=0.0001, help='optimizer learning rate')
 parser.add_argument('--des', type=str, default='test', help='exp description')
 parser.add_argument('--loss', type=str, default='mse', help='loss function')
@@ -73,13 +73,13 @@ args.use_gpu = True if torch.cuda.is_available() and args.use_gpu else False
 print("Using GPU") if args.use_gpu else print("Using CPU")
 
 
-print('Args in experiment:')
-print(args)
+# print('Args in experiment:')
+# print(args)
 
 Exp = Exp_Main
 
 if args.is_training:
-    setting = '{}_sl{}_ll{}_pl{}_df{}_pos{}_val{}_temp{}'.format(
+    setting = '{}_sl-{}_ll-{}_pl-{}_df{}_pos-{}_val-{}_temp-{}'.format(
         args.model,
         args.seq_len,
         args.label_len,
@@ -97,7 +97,7 @@ if args.is_training:
     print('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
     exp.test(setting)
 else:
-    setting = '{}_sl{}_ll{}_pl{}_df{}_pos{}_val{}_temp{}'.format(
+    setting = '{}_sl-{}_ll-{}_pl-{}_df{}_pos-{}_val-{}_temp-{}'.format(
         args.model,
         args.seq_len,
         args.label_len,

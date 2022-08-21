@@ -21,7 +21,7 @@ warnings.filterwarnings('ignore')
 class Exp_Main():
     def __init__(self, args):
         self.args = args
-        self.device = torch.device('cuda:0')
+        self.device = torch.device('cuda:1')
         self.model = self._build_model().to(self.device)
 
     def _build_model(self):
@@ -123,7 +123,7 @@ class Exp_Main():
                 loss.backward()
                 model_optim.step()
 
-            print("Epoch: {} cost time: {}".format(epoch + 1, time.time() - epoch_time))
+            # print("Epoch: {} cost time: {}".format(epoch + 1, time.time() - epoch_time))
             train_loss = np.average(train_loss)
             vali_loss = self.vali(vali_data, vali_loader, criterion)
             test_loss = self.vali(test_data, test_loader, criterion)
@@ -183,11 +183,11 @@ class Exp_Main():
                 preds.append(pred)
                 trues.append(true)
                 inputx.append(batch_x.detach().cpu().numpy())
-                if i % 20 == 0:
-                    input = batch_x.detach().cpu().numpy()
-                    gt = np.concatenate((input[0, :, -1], true[0, :, -1]), axis=0)
-                    pd = np.concatenate((input[0, :, -1], pred[0, :, -1]), axis=0)
-                    visual(gt, pd, os.path.join(folder_path, str(i) + '.pdf'))
+                # if i % 20 == 0:
+                #     input = batch_x.detach().cpu().numpy()
+                #     gt = np.concatenate((input[0, :, -1], true[0, :, -1]), axis=0)
+                #     pd = np.concatenate((input[0, :, -1], pred[0, :, -1]), axis=0)
+                #     visual(gt, pd, os.path.join(folder_path, str(i) + '.pdf'))
 
 
         preds = np.array(preds)
@@ -204,10 +204,10 @@ class Exp_Main():
             os.makedirs(folder_path)
 
         mae, mse, rmse, mape, mspe, rse, corr, r_square = metric(preds, trues)
-        print('mse:{}, mae:{}, rse:{}, R2:{}'.format(mse, mae, rse, r_square))
+        print('mse:{}, mae:{}, rmse:{}, mape:{}, mspe:{}, rse:{}, R2:{}'.format(mse, mae, rmse, mape, mspe, rse, r_square))
         f = open("result.txt", 'a')
         f.write(setting + "  \n")
-        f.write('mse:{}, mae:{}, rse:{}, R2:{}'.format(mse, mae, rse, r_square))
+        f.write('mse:{}, mae:{}, rmse:{}, mape:{}, mspe:{}, rse:{}, R2:{}'.format(mse, mae, rmse, mape, mspe, rse, r_square))
         f.write('\n')
         f.write('\n')
         f.close()
@@ -217,57 +217,4 @@ class Exp_Main():
         # np.save(folder_path + 'true.npy', trues)
         # np.save(folder_path + 'x.npy', inputx)
         return
-    #
-    # def predict(self, setting, load=False):
-    #     pred_data, pred_loader = self._get_data(flag='pred')
-    #
-    #     if load:
-    #         path = os.path.join(self.args.checkpoints, setting)
-    #         best_model_path = path + '/' + 'checkpoint.pth'
-    #         self.model.load_state_dict(torch.load(best_model_path))
-    #
-    #     preds = []
-    #
-    #     self.model.eval()
-    #     with torch.no_grad():
-    #         for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in enumerate(pred_loader):
-    #             batch_x = batch_x.float().to(self.device)
-    #             batch_y = batch_y.float()
-    #             batch_x_mark = batch_x_mark.float().to(self.device)
-    #             batch_y_mark = batch_y_mark.float().to(self.device)
-    #
-    #             # decoder input
-    #             dec_inp = torch.zeros([batch_y.shape[0], self.args.pred_len, batch_y.shape[2]]).float().to(batch_y.device)
-    #             dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
-    #             # encoder - decoder
-    #             if self.args.use_amp:
-    #                 with torch.cuda.amp.autocast():
-    #                     if 'DLinear' in self.args.model:
-    #                         outputs = self.model(batch_x)
-    #                     else:
-    #                         if self.args.output_attention:
-    #                             outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
-    #                         else:
-    #                             outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-    #             else:
-    #                 if 'DLinear' in self.args.model:
-    #                     outputs = self.model(batch_x)
-    #                 else:
-    #                     if self.args.output_attention:
-    #                         outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
-    #                     else:
-    #                         outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-    #             pred = outputs.detach().cpu().numpy()  # .squeeze()
-    #             preds.append(pred)
-    #
-    #     preds = np.array(preds)
-    #     preds = preds.reshape(-1, preds.shape[-2], preds.shape[-1])
-    #
-    #     # result save
-    #     folder_path = './results/' + setting + '/'
-    #     if not os.path.exists(folder_path):
-    #         os.makedirs(folder_path)
-    #
-    #     np.save(folder_path + 'real_prediction.npy', preds)
-    #
-    #     return
+

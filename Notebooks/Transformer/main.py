@@ -9,6 +9,7 @@ fix_seed = 0
 random.seed(fix_seed)
 torch.manual_seed(fix_seed)
 np.random.seed(fix_seed)
+os.environ["CUDA_VISIBLE_DEVICES"] = "1,2,3"
 
 # if __name__ == '__main__':
 
@@ -28,7 +29,7 @@ parser.add_argument('--freq', type=str, default='h',
 parser.add_argument('--checkpoints', type=str, default='./checkpoints/', help='location of model checkpoints')
 
 # forecasting task
-parser.add_argument('--seq_len', type=int, default=10, help='input sequence length - encoder input length')
+parser.add_argument('--seq_len', type=int, default=96, help='input sequence length - encoder input length')
 parser.add_argument('--label_len', type=int, default=48, help='start token length - decoder input length')
 parser.add_argument('--pred_len', type=int, default=1, help='prediction sequence length')
 
@@ -56,7 +57,7 @@ parser.add_argument('--do_predict', action='store_true', help='whether to predic
 
 # optimization
 parser.add_argument('--train_epochs', type=int, default=30, help='train epochs')
-parser.add_argument('--batch_size', type=int, default=32, help='batch size of train input data')
+parser.add_argument('--batch_size', type=int, default=96, help='batch size of train input data')
 parser.add_argument('--patience', type=int, default=3, help='early stopping patience')
 parser.add_argument('--learning_rate', type=float, default=0.0001, help='optimizer learning rate')
 parser.add_argument('--des', type=str, default='test', help='exp description')
@@ -73,8 +74,8 @@ args.use_gpu = True if torch.cuda.is_available() and args.use_gpu else False
 print("Using GPU") if args.use_gpu else print("Using CPU")
 
 
-# print('Args in experiment:')
-# print(args)
+print('Args in experiment:')
+print(args)
 
 Exp = Exp_Main
 
@@ -96,6 +97,7 @@ if args.is_training:
 
     print('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
     exp.test(setting)
+    torch.cuda.empty_cache()
 else:
     setting = '{}_sl-{}_ll-{}_pl-{}_df{}_pos-{}_val-{}_temp-{}'.format(
         args.model,
@@ -110,5 +112,6 @@ else:
     exp = Exp(args)  # set experiments
     print('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
     exp.test(setting, test=1)
+    torch.cuda.empty_cache()
 
 

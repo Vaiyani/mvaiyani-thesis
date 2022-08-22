@@ -21,8 +21,13 @@ warnings.filterwarnings('ignore')
 class Exp_Main():
     def __init__(self, args):
         self.args = args
-        self.device = torch.device('cuda:1')
-        self.model = self._build_model().to(self.device)
+        # self.device = torch.device('cuda:1')
+        self.device = torch.device("cuda")  ## specify the GPU id's, GPU id's start from 0.
+        self.model = nn.DataParallel(self._build_model()).to(self.device)
+
+        # model = nn.DataParallel(model, device_ids=[1, 3])
+        # model.to(device)
+        # self.model = self._build_model().to(self.device)
 
     def _build_model(self):
         if self.args.model == 'Transformer':
@@ -152,9 +157,9 @@ class Exp_Main():
         preds = []
         trues = []
         inputx = []
-        folder_path = './test_results/' + setting + '/'
-        if not os.path.exists(folder_path):
-            os.makedirs(folder_path)
+        # folder_path = './test_results/' + setting + '/'
+        # if not os.path.exists(folder_path):
+        #     os.makedirs(folder_path)
 
         self.model.eval()
         with torch.no_grad():
@@ -199,9 +204,9 @@ class Exp_Main():
         inputx = inputx.reshape(-1, inputx.shape[-2], inputx.shape[-1])
 
         # result save
-        folder_path = './results/' + setting + '/'
-        if not os.path.exists(folder_path):
-            os.makedirs(folder_path)
+        # folder_path = './results/' + setting + '/'
+        # if not os.path.exists(folder_path):
+        #     os.makedirs(folder_path)
 
         mae, mse, rmse, mape, mspe, rse, corr, r_square = metric(preds, trues)
         print('mse:{}, mae:{}, rmse:{}, mape:{}, mspe:{}, rse:{}, R2:{}'.format(mse, mae, rmse, mape, mspe, rse, r_square))

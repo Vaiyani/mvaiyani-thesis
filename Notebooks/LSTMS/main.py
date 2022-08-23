@@ -13,6 +13,7 @@ import warnings
 warnings.simplefilter("ignore", UserWarning)
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
 
+
 parser = argparse.ArgumentParser(description='Time Series Forecasting With LSTMS')
 parser.add_argument('--lookback', type=int, required=False, default=10, help='past time step to look into')
 parser.add_argument('--future', type=int, required=False, default=1, help='time steps to predict in future')
@@ -20,6 +21,10 @@ args = parser.parse_args()
 lookback = args.lookback
 pred_len = args.future
 identifier = 'LSTM_Hourly_lookback-{}_future-{}'.format(lookback, pred_len)
+print(identifier)
+isExist = os.path.exists('./saved_models')
+if not isExist:
+  os.makedirs('./saved_models')
 
 def min_max_scale(train: np.array, val: np.array, test: np.array) -> Union[MinMaxScaler, np.array, np.array, np.array]:
     """ Tranform the train and test data into min max scale of train data"""
@@ -69,7 +74,7 @@ def model():
     model.add(LSTM(100, activation='relu'))
     model.add(Dense(pred_len))
 
-    model.compile(optimizer=keras.optimizers.Adam(learning_rate=0.0001),
+    model.compile(optimizer='adam',
                   loss='mse')
 
     return model
@@ -100,7 +105,7 @@ def calculate_metrics(test: np.ndarray, predict: np.ndarray, identifier: str) ->
 
 
 
-df = pd.read_csv('../../data/cleaned_data.csv')
+df = pd.read_csv('cleaned_data.csv')
 data = df['close'].values
 data = data.reshape(-1,1)
 
@@ -119,9 +124,11 @@ model = model()
 
 # stop_training_early = keras.callbacks.EarlyStopping()
 stop_training_early = keras.callbacks.EarlyStopping(monitor="val_loss", patience=3)
-history = model.fit(x_train, y_train, epochs=1 , verbose=1, shuffle=False, validation_data=(x_val, y_val),
+history = model.fit(x_train, y_train, epochs=60 , verbose=1, shuffle=False, validation_data=(x_val, y_val),
                     callbacks=[stop_training_early])
 
 
+## save model
+model.save('saved_model/' + identifier)
 y_predict = model.predict(x_test)
 calculate_metrics(y_test, y_predict, identifier)

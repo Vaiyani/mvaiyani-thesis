@@ -1,6 +1,7 @@
 from data_flow import data_provider
 from exp.exp_basic import Exp_Basic
 from models.Transformer import Transformer
+from models.Autoformer import Autoformer
 from utils.tools import EarlyStopping, adjust_learning_rate, visual
 from utils.metrics import metric
 
@@ -32,6 +33,8 @@ class Exp_Main():
     def _build_model(self):
         if self.args.model == 'Transformer':
             model = Transformer(self.args).float()
+        elif self.args.model == 'Autoformer':
+            model = Autoformer(self.args).float()
         return model
 
     def _get_data(self, flag):
@@ -133,8 +136,8 @@ class Exp_Main():
             vali_loss = self.vali(vali_data, vali_loader, criterion)
             test_loss = self.vali(test_data, test_loader, criterion)
 
-            print("Epoch: {0}, Steps: {1} | Train Loss: {2:.7f} Vali Loss: {3:.7f} Test Loss: {4:.7f}".format(
-                epoch + 1, train_steps, train_loss, vali_loss, test_loss))
+            print("Epoch: {0} | Train Loss: {1:.7f} Vali Loss: {2:.7f} Test Loss: {3:.7f}".format(
+                epoch + 1, train_loss, vali_loss, test_loss))
             early_stopping(vali_loss, self.model, path)
             if early_stopping.early_stop:
                 print("Early stopping")
@@ -149,18 +152,12 @@ class Exp_Main():
 
     def test(self, setting, test=0):
         test_data, test_loader = self._get_data(flag='test')
-        
         if test:
             print('loading model')
             self.model.load_state_dict(torch.load(os.path.join('./checkpoints/' + setting, 'checkpoint.pth')))
-
         preds = []
         trues = []
         inputx = []
-        # folder_path = './test_results/' + setting + '/'
-        # if not os.path.exists(folder_path):
-        #     os.makedirs(folder_path)
-
         self.model.eval()
         with torch.no_grad():
             for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in enumerate(test_loader):
@@ -188,11 +185,6 @@ class Exp_Main():
                 preds.append(pred)
                 trues.append(true)
                 inputx.append(batch_x.detach().cpu().numpy())
-                # if i % 20 == 0:
-                #     input = batch_x.detach().cpu().numpy()
-                #     gt = np.concatenate((input[0, :, -1], true[0, :, -1]), axis=0)
-                #     pd = np.concatenate((input[0, :, -1], pred[0, :, -1]), axis=0)
-                #     visual(gt, pd, os.path.join(folder_path, str(i) + '.pdf'))
 
 
         preds = np.array(preds)
@@ -203,10 +195,6 @@ class Exp_Main():
         trues = trues.reshape(-1, trues.shape[-2], trues.shape[-1])
         inputx = inputx.reshape(-1, inputx.shape[-2], inputx.shape[-1])
 
-        # result save
-        # folder_path = './results/' + setting + '/'
-        # if not os.path.exists(folder_path):
-        #     os.makedirs(folder_path)
 
         mae, mse, rmse, mape, mspe, rse, corr, r_square = metric(preds, trues)
         print('mse:{}, mae:{}, rmse:{}, mape:{}, mspe:{}, rse:{}, R2:{}'.format(mse, mae, rmse, mape, mspe, rse, r_square))
@@ -217,9 +205,5 @@ class Exp_Main():
         f.write('\n')
         f.close()
 
-        # np.save(folder_path + 'metrics.npy', np.array([mae, mse, rmse, mape, mspe,rse, corr]))
-        # np.save(folder_path + 'pred.npy', preds)
-        # np.save(folder_path + 'true.npy', trues)
-        # np.save(folder_path + 'x.npy', inputx)
         return
 

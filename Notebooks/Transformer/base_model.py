@@ -2,6 +2,7 @@ from data_flow import data_provider
 from exp.exp_basic import Exp_Basic
 from models.Transformer import Transformer
 from models.Autoformer import Autoformer
+from models.Informer import Informer
 from utils.tools import EarlyStopping, adjust_learning_rate, visual
 from utils.metrics import metric
 
@@ -35,6 +36,8 @@ class Exp_Main():
             model = Transformer(self.args).float()
         elif self.args.model == 'Autoformer':
             model = Autoformer(self.args).float()
+        elif self.args.model == 'Informer':
+            model = Informer(self.args).float()
         return model
 
     def _get_data(self, flag):
@@ -198,7 +201,7 @@ class Exp_Main():
 
         mae, mse, rmse, mape, mspe, rse, corr, r_square = metric(preds, trues)
         print('mse:{}, mae:{}, rmse:{}, mape:{}, mspe:{}, rse:{}, R2:{}'.format(mse, mae, rmse, mape, mspe, rse, r_square))
-        f = open("result.txt", 'a')
+        f = open("result-informer.txt", 'a')
         f.write(setting + "  \n")
         f.write('mse:{}, mae:{}, rmse:{}, mape:{}, mspe:{}, rse:{}, R2:{}'.format(mse, mae, rmse, mape, mspe, rse, r_square))
         f.write('\n')

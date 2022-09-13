@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData" autoUpload="Always" serverName="muneeb@131.159.41.47:22 password" exclude=".svn;.cvs;.idea;.DS_Store;.git;.hg;*.hprof;*.pyc;my_dir" remoteFilesAllowedToDisappearOnAutoupload="false">
+    <serverData>
+      <paths name="muneeb@131.159.41.47:22 password">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/muneeb/lstm" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+    </serverData>
+    <option name="myAutoUpload" value="ALWAYS" />
+  </component>
+</project>

@@ -1,23 +1,23 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from utils.masking import TriangularCausalMask, ProbMask
 from layers.Transformer_EncDec import Decoder, DecoderLayer, Encoder, EncoderLayer, ConvLayer
-from layers.SelfAttention_Family import FullAttention, AttentionLayer
+from layers.SelfAttention_Family import FullAttention, ProbAttention, AttentionLayer
 from layers.Embed import DataEmbedding
 import numpy as np
 
 
-class Transformer(nn.Module):
+class Informer(nn.Module):
     """
-    Vanilla Transformer with O(L^2) complexity
+    Informer with Propspare attention in O(LlogL) complexity
     """
     def __init__(self, configs):
-        super(Transformer, self).__init__()
+        super(Informer, self).__init__()
         self.pred_len = configs.pred_len
         self.output_attention = configs.output_attention
 
         # Embedding
-        # if configs.embed_type == 0:
         self.enc_embedding = DataEmbedding(configs.enc_in, configs.d_model, configs.positional_embedding,
                                            configs.value_embedding, configs.temporal_embedding, configs.embed,
                                            configs.freq, configs.dropout)
@@ -29,19 +29,20 @@ class Transformer(nn.Module):
             [
                 EncoderLayer(
                     AttentionLayer(
-                        FullAttention(False, configs.factor
-                                      ,attention_dropout=configs.dropout
-                                      # ,output_attention=configs.output_attention
-                                      ),
-                        configs.d_model,
-                        configs.n_heads
-                    ),
+                        ProbAttention(False, configs.factor, attention_dropout=configs.dropout,
+                                      output_attention=configs.output_attention),
+                        configs.d_model, configs.n_heads),
                     configs.d_model,
                     configs.d_ff,
                     dropout=configs.dropout,
                     activation=configs.activation
                 ) for l in range(configs.e_layers)
             ],
+            [
+                ConvLayer(
+                    configs.d_model
+                ) for l in range(configs.e_layers - 1)
+            ] if 1 == 0 else None,
             norm_layer=torch.nn.LayerNorm(configs.d_model)
         )
         # Decoder
@@ -49,10 +50,10 @@ class Transformer(nn.Module):
             [
                 DecoderLayer(
                     AttentionLayer(
-                        FullAttention(True, configs.factor, attention_dropout=configs.dropout, output_attention=False),
+                        ProbAttention(True, configs.factor, attention_dropout=configs.dropout, output_attention=False),
                         configs.d_model, configs.n_heads),
                     AttentionLayer(
-                        FullAttention(False, configs.factor, attention_dropout=configs.dropout, output_attention=False),
+                        ProbAttention(False, configs.factor, attention_dropout=configs.dropout, output_attention=False),
                         configs.d_model, configs.n_heads),
                     configs.d_model,
                     configs.d_ff,
@@ -74,7 +75,7 @@ class Transformer(nn.Module):
         dec_out = self.dec_embedding(x_dec, x_mark_dec)
         dec_out = self.decoder(dec_out, enc_out, x_mask=dec_self_mask, cross_mask=dec_enc_mask)
 
-        # if self.output_attention:
-        #     return dec_out[:, -self.pred_len:, :], attns
-        # else:
-        return dec_out[:, -self.pred_len:, :]  # [B, L, D]
+        if self.output_attention:
+            return dec_out[:, -self.pred_len:, :], attns
+        else:
+            return dec_out[:, -self.pred_len:, :]  # [B, L, D]

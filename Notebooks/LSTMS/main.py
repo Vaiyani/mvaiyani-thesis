@@ -7,8 +7,8 @@ import os
 
 parser = argparse.ArgumentParser(description='Time Series Forecasting With LSTMS')
 parser.add_argument('--lookback', type=int, required=False, default=6, help='past time step to look into')
-parser.add_argument('--future', type=int, required=False, default=1, help='time steps to predict in future')
-parser.add_argument('--gpu', action='store_true', help='gpu visible')
+parser.add_argument('--future', type=int, required=False, default=12, help='time steps to predict in future')
+parser.add_argument('--gpu', action='store_false', help='gpu visible')
 args = parser.parse_args()
 lookback = args.lookback
 pred_len = args.future
@@ -139,7 +139,7 @@ model = model()
 
 # stop_training_early = keras.callbacks.EarlyStopping()
 stop_training_early = keras.callbacks.EarlyStopping(monitor="val_loss", patience=3)
-history = model.fit(x_train, y_train, epochs=60 , verbose=1, shuffle=False, validation_data=(x_val, y_val),
+history = model.fit(x_train, y_train, epochs=1 , verbose=1, shuffle=False, validation_data=(x_val, y_val),
                     callbacks=[stop_training_early])
 
 

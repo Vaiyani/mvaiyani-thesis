@@ -199,14 +199,26 @@ class Exp_Main():
         inputx = inputx.reshape(-1, inputx.shape[-2], inputx.shape[-1])
 
 
+        preds_inverse = test_data.scaler.inverse_transform(preds.squeeze().reshape(-1,1))
+        trues_inverse = test_data.scaler.inverse_transform(trues.squeeze().reshape(-1, 1))
+        mae, mse, rmse, mape, mspe, rse, corr, r_square = metric(np.expand_dims(preds_inverse,2), np.expand_dims(trues_inverse,2))
+        print('mse:{}, mae:{}, rmse:{}, mape:{}, mspe:{}, rse:{}, R2:{}'.format(mse, mae, rmse, mape, mspe, rse, r_square))
         mae, mse, rmse, mape, mspe, rse, corr, r_square = metric(preds, trues)
         print('mse:{}, mae:{}, rmse:{}, mape:{}, mspe:{}, rse:{}, R2:{}'.format(mse, mae, rmse, mape, mspe, rse, r_square))
-        f = open("result-informer.txt", 'a')
+        f = open("testing.txt", 'a')
         f.write(setting + "  \n")
         f.write('mse:{}, mae:{}, rmse:{}, mape:{}, mspe:{}, rse:{}, R2:{}'.format(mse, mae, rmse, mape, mspe, rse, r_square))
         f.write('\n')
         f.write('\n')
         f.close()
+
+        plt.plot(preds_inverse.flatten())
+        plt.plot(trues_inverse.flatten())
+        plt.savefig('dollars.png')
+        plt.clf()
+        plt.plot(preds.flatten())
+        plt.plot(trues.flatten())
+        plt.savefig('not-inverse.png')
 
         return
 

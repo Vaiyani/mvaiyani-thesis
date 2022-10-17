@@ -28,6 +28,7 @@ class FullAttention(nn.Module):
 
         if self.mask_flag:
             if attn_mask is None:
+                check=queries.device
                 attn_mask = TriangularCausalMask(B, L, device=queries.device)
 
             scores.masked_fill_(attn_mask.mask, -np.inf)

@@ -1,9 +1,10 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from layers.Embed import DataEmbedding
 from layers.AutoCorrelation import AutoCorrelation, AutoCorrelationLayer
 from layers.Autoformer_EncDec import Encoder, Decoder, EncoderLayer, DecoderLayer, my_Layernorm, series_decomp
+from layers.Embed import DataEmbedding, DataEmbedding_wo_pos, DataEmbedding_wo_val, DataEmbedding_wo_temp, DataEmbedding_wo_pos_val, DataEmbedding_wo_val_temp, \
+                         DataEmbedding_wo_pos_temp
 import math
 import numpy as np
 
@@ -27,13 +28,47 @@ class Autoformer(nn.Module):
         # Embedding
         # The series-wise connection inherently contains the sequential information.
         # Thus, we can discard the position embedding of transformers.
-        self.enc_embedding = DataEmbedding(configs.enc_in, configs.d_model, configs.positional_embedding,
-                                           configs.value_embedding, configs.temporal_embedding, configs.embed,
-                                           configs.freq, configs.dropout)
-        self.dec_embedding = DataEmbedding(configs.enc_in, configs.d_model, configs.positional_embedding,
-                                           configs.value_embedding, configs.temporal_embedding, configs.embed,
-                                           configs.freq, configs.dropout)
-
+        # self.enc_embedding = DataEmbedding(configs.enc_in, configs.d_model, configs.positional_embedding,
+        #                                    configs.value_embedding, configs.temporal_embedding, configs.embed,
+        #                                    configs.freq, configs.dropout)
+        # self.dec_embedding = DataEmbedding(configs.enc_in, configs.d_model, configs.positional_embedding,
+        #                                    configs.value_embedding, configs.temporal_embedding, configs.embed,
+        #                                    configs.freq, configs.dropout)
+        self.pos = configs.positional_embedding
+        self.val = configs.value_embedding
+        self.temp = configs.temporal_embedding
+        self.enc_embedding = DataEmbedding_wo_pos(configs.enc_in, configs.d_model, configs.embed, configs.freq,
+                                                  configs.dropout)
+        self.dec_embedding = DataEmbedding_wo_pos(configs.enc_in, configs.d_model, configs.embed, configs.freq,
+                                                  configs.dropout)
+        # if self.pos == "True" and self.val == "True" and self.temp == "True":
+        #     print("here 1")
+        #     self.enc_embedding = DataEmbedding(configs.enc_in, configs.d_model, configs.embed, configs.freq, configs.dropout)
+        #     self.dec_embedding = DataEmbedding(configs.enc_in, configs.d_model, configs.embed, configs.freq, configs.dropout)
+        # if self.pos == "True" and self.val == "True" and self.temp == 'False':
+        #     print("here 2")
+        #     self.enc_embedding = DataEmbedding_wo_temp(configs.enc_in, configs.d_model, configs.embed, configs.freq, configs.dropout)
+        #     self.dec_embedding = DataEmbedding_wo_temp(configs.enc_in, configs.d_model, configs.embed, configs.freq, configs.dropout)
+        # if self.pos == "True" and self.val == 'False' and self.temp == "True":
+        #     print("here 3")
+        #     self.enc_embedding = DataEmbedding_wo_val(configs.enc_in, configs.d_model, configs.embed, configs.freq, configs.dropout)
+        #     self.dec_embedding = DataEmbedding_wo_val(configs.enc_in, configs.d_model, configs.embed, configs.freq, configs.dropout)
+        # if self.pos == "True" and self.val == 'False' and self.temp == 'False':
+        #     print("here 4")
+        #     self.enc_embedding = DataEmbedding_wo_val_temp(configs.enc_in, configs.d_model, configs.embed, configs.freq, configs.dropout)
+        #     self.dec_embedding = DataEmbedding_wo_val_temp(configs.enc_in, configs.d_model, configs.embed, configs.freq, configs.dropout)
+        # if self.pos == 'False' and self.val == "True" and self.temp == "True":
+        #     print("here 5")
+        #     self.enc_embedding = DataEmbedding_wo_pos(configs.enc_in, configs.d_model, configs.embed, configs.freq, configs.dropout)
+        #     self.dec_embedding = DataEmbedding_wo_pos(configs.enc_in, configs.d_model, configs.embed, configs.freq, configs.dropout)
+        # if self.pos == 'False' and self.val == "True" and self.temp == 'False':
+        #     print("here 6")
+        #     self.enc_embedding = DataEmbedding_wo_pos_temp(configs.enc_in, configs.d_model, configs.embed, configs.freq, configs.dropout)
+        #     self.dec_embedding = DataEmbedding_wo_pos_temp(configs.enc_in, configs.d_model, configs.embed, configs.freq, configs.dropout)
+        # if self.pos == 'False' and self.val == 'False' and self.temp == "True":
+        #     print("here 7")
+        #     self.enc_embedding = DataEmbedding_wo_pos_val(configs.enc_in, configs.d_model, configs.embed, configs.freq, configs.dropout)
+        #     self.dec_embedding = DataEmbedding_wo_pos_val(configs.enc_in, configs.d_model, configs.embed, configs.freq, configs.dropout)
         # Encoder
         self.encoder = Encoder(
             [

@@ -3,7 +3,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from layers.Transformer_EncDec import Decoder, DecoderLayer, Encoder, EncoderLayer, ConvLayer
 from layers.SelfAttention_Family import FullAttention, AttentionLayer
-from layers.Embed import DataEmbedding
+from layers.Embed import DataEmbedding, DataEmbedding_wo_pos, DataEmbedding_wo_val, DataEmbedding_wo_temp, DataEmbedding_wo_pos_val, DataEmbedding_wo_val_temp,\
+    DataEmbedding_wo_pos_temp
 import numpy as np
 
 
@@ -18,13 +19,49 @@ class Transformer(nn.Module):
 
         # Embedding
         # if configs.embed_type == 0:
-        self.enc_embedding = DataEmbedding(configs.enc_in, configs.d_model, configs.positional_embedding,
-                                           configs.value_embedding, configs.temporal_embedding, configs.embed,
-                                           configs.freq, configs.dropout)
-        self.dec_embedding = DataEmbedding(configs.enc_in, configs.d_model, configs.positional_embedding,
-                                           configs.value_embedding, configs.temporal_embedding, configs.embed,
-                                           configs.freq, configs.dropout)
-        # Encoder
+        # self.enc_embedding = DataEmbedding(configs.enc_in, configs.d_model, configs.positional_embedding,
+        #                                    configs.value_embedding, configs.temporal_embedding, configs.embed,
+        #                                    configs.freq, configs.dropout)
+        # self.dec_embedding = DataEmbedding(configs.enc_in, configs.d_model, configs.positional_embedding,
+        #                                    configs.value_embedding, configs.temporal_embedding, configs.embed,
+        #                                    configs.freq, configs.dropout)
+        self.pos = configs.positional_embedding
+        self.val = configs.value_embedding
+        self.temp = configs.temporal_embedding
+        self.enc_embedding = DataEmbedding_wo_val_temp(configs.enc_in, configs.d_model, configs.embed, configs.freq, configs.dropout)
+        self.dec_embedding = DataEmbedding_wo_val_temp(configs.enc_in, configs.d_model, configs.embed, configs.freq, configs.dropout)
+        # if self.pos == "True" and self.val == "True" and self.temp == "True":
+        #     print("here 1")
+        #     self.enc_embedding = DataEmbedding(configs.enc_in, configs.d_model, configs.embed, configs.freq, configs.dropout)
+        #     self.dec_embedding = DataEmbedding(configs.enc_in, configs.d_model, configs.embed, configs.freq, configs.dropout)
+        # if self.pos == "True" and self.val == "True" and self.temp == 'False':
+        #     print("here 2")
+        #     self.enc_embedding = DataEmbedding_wo_temp(configs.enc_in, configs.d_model, configs.embed, configs.freq, configs.dropout)
+        #     self.dec_embedding = DataEmbedding_wo_temp(configs.enc_in, configs.d_model, configs.embed, configs.freq, configs.dropout)
+        # if self.pos == "True" and self.val == 'False' and self.temp == "True":
+        #     print("here 3")
+        #     self.enc_embedding = DataEmbedding_wo_val(configs.enc_in, configs.d_model, configs.embed, configs.freq, configs.dropout, configs.batch_size)
+        #     self.dec_embedding = DataEmbedding_wo_val(configs.enc_in, configs.d_model, configs.embed, configs.freq, configs.dropout, configs.batch_size)
+        # if self.pos == "True" and self.val == 'False' and self.temp == 'False':
+        #     print("here 4")
+        #     self.enc_embedding = DataEmbedding_wo_val_temp(configs.enc_in, configs.d_model, configs.embed, configs.freq, configs.dropout)
+        #     self.dec_embedding = DataEmbedding_wo_val_temp(configs.enc_in, configs.d_model, configs.embed, configs.freq, configs.dropout)
+        # if self.pos == 'False' and self.val == "True" and self.temp == "True":
+        #     print("here 5")
+        #     self.enc_embedding = DataEmbedding_wo_pos(configs.enc_in, configs.d_model, configs.embed, configs.freq, configs.dropout)
+        #     self.dec_embedding = DataEmbedding_wo_pos(configs.enc_in, configs.d_model, configs.embed, configs.freq, configs.dropout)
+        # if self.pos == 'False' and self.val == "True" and self.temp == 'False':
+        #     print("here 6")
+        #     self.enc_embedding = DataEmbedding_wo_pos_temp(configs.enc_in, configs.d_model, configs.embed, configs.freq, configs.dropout)
+        #     self.dec_embedding = DataEmbedding_wo_pos_temp(configs.enc_in, configs.d_model, configs.embed, configs.freq, configs.dropout)
+        # if self.pos == 'False' and self.val == 'False' and self.temp == "True":
+        #     print("here 7")
+        #     self.enc_embedding = DataEmbedding_wo_pos_val(configs.enc_in, configs.d_model, configs.embed, configs.freq, configs.dropout)
+        #     self.dec_embedding = DataEmbedding_wo_pos_val(configs.enc_in, configs.d_model, configs.embed, configs.freq, configs.dropout)
+        # if self.pos is False & self.val is False & self.temp is False:
+        #     self.enc_embedding = DataEmbedding_wo_pos_val_temp(configs.enc_in, configs.d_model, configs.embed, configs.freq, configs.dropout)
+        #     self.enc_embedding = DataEmbedding_wo_pos_val_temp(configs.enc_in, configs.d_model, configs.embed, configs.freq, configs.dropout)
+                # Encoder
         self.encoder = Encoder(
             [
                 EncoderLayer(
@@ -32,10 +69,7 @@ class Transformer(nn.Module):
                         FullAttention(False, configs.factor
                                       ,attention_dropout=configs.dropout
                                       # ,output_attention=configs.output_attention
-                                      ),
-                        configs.d_model,
-                        configs.n_heads
-                    ),
+                                      ), configs.d_model, configs.n_heads),
                     configs.d_model,
                     configs.d_ff,
                     dropout=configs.dropout,
@@ -77,4 +111,5 @@ class Transformer(nn.Module):
         # if self.output_attention:
         #     return dec_out[:, -self.pred_len:, :], attns
         # else:
+        # a = 1
         return dec_out[:, -self.pred_len:, :]  # [B, L, D]

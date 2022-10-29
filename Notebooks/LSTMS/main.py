@@ -7,7 +7,7 @@ import os
 
 parser = argparse.ArgumentParser(description='Time Series Forecasting With LSTMS')
 parser.add_argument('--lookback', type=int, required=False, default=24, help='past time step to look into')
-parser.add_argument('--future', type=int, required=False, default=12, help='time steps to predict in future')
+parser.add_argument('--future', type=int, required=False, default=96, help='time steps to predict in future')
 parser.add_argument('--gpu', action='store_true', help='gpu visible')
 args = parser.parse_args()
 lookback = args.lookback
@@ -82,9 +82,11 @@ def sliding_window(data: [], window_length: int, pred_len: int = 1) -> Union[np.
 def model():
 
     model = keras.Sequential()
-    model.add(LSTM(100, activation=activation, return_sequences=True))
+    model.add(LSTM(50, activation=activation))
     model.add(Dropout(0.3))
-    model.add(LSTM(100, activation=activation))
+    # model.add(LSTM(100, activation=activation, return_sequences=True))
+    # model.add(Dropout(0.3))
+    # model.add(LSTM(100, activation=activation))
     model.add(Dense(pred_len))
 
     # initial_learning_rate = 0.0001
@@ -115,7 +117,7 @@ def calculate_metrics(test: np.ndarray, predict: np.ndarray, identifier: str) ->
     MAPE = mean_absolute_percentage_error(test.flatten(), predict.flatten())
     r2 = r2_score(test.flatten(), predict.flatten())
     print('mse: {}, mae: {}, rmse: {}, mape: {}, R2: {}'.format(MSE, MAE, RMSE, MAPE, r2))
-    f = open("understanding_12_reduce.txt", 'a')
+    f = open("after_96_results_lstm_univariate.txt", 'a')
     f.write(identifier + "  \n")
     f.write('mse: {}, mae: {}, rmse: {}, mape: {}, R2: {}'.format(MSE, MAE, RMSE, MAPE, r2))
     f.write('\n')
@@ -144,7 +146,7 @@ print("Test :", x_test.shape)
 model = model()
 
 # stop_training_early = keras.callbacks.EarlyStopping()
-stop_training_early = keras.callbacks.EarlyStopping(monitor="val_loss", patience=10,restore_best_weights=True)
+stop_training_early = keras.callbacks.EarlyStopping(monitor="val_loss", patience=3, restore_best_weights=True)
 history = model.fit(x_train, y_train, epochs=60 , verbose=1, shuffle=False, validation_data=(x_val, y_val),
                    callbacks=[stop_training_early])
 
@@ -157,9 +159,10 @@ calculate_metrics(y_test, y_predict, identifier)
 # plt.plot(y_test.flatten(), label='test')
 # plt.plot(y_predict.flatten(), 'r-', label='predict')
 # plt.legend()
+# plt.savefig('fig_pred/'+'prediction_graph'+'lookback-'+str(lookback)+'future-'+str(pred_len)+'.png')
 # plt.show()
 
-#plt.plot(history.history['loss'], label='train loss')
+plt.plot(history.history['loss'], label='train loss')
 plt.plot(history.history['val_loss'], label='validation loss')
 plt.legend()
-plt.savefig('loss_'+'lookback-'+str(lookback)+'future-'+str(pred_len)+'.png')
+plt.savefig('fig/'+'loss_'+'lookback-'+str(lookback)+'future-'+str(pred_len)+'.png')

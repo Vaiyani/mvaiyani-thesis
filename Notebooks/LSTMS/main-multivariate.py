@@ -6,15 +6,18 @@ import matplotlib.pyplot as plt
 import os
 
 parser = argparse.ArgumentParser(description='Time Series Forecasting With LSTMS')
-parser.add_argument('--lookback', type=int, required=False, default=6, help='past time step to look into')
+parser.add_argument('--lookback', type=int, required=False, default=24, help='past time step to look into')
 parser.add_argument('--future', type=int, required=False, default=12, help='time steps to predict in future')
 parser.add_argument('--gpu', action='store_true', help='gpu visible')
+parser.add_argument('--reduce_complexity', action='store_true', help='gpu visible')
 args = parser.parse_args()
 lookback = args.lookback
 pred_len = args.future
 gpu = args.gpu
+reduce_complexity = args.reduce_complexity
+print(args)
 if gpu:
-    os.environ["CUDA_VISIBLE_DEVICES"] = "6"
+    os.environ["CUDA_VISIBLE_DEVICES"] = "0"
     activation = 'tanh'
 else:
     os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
@@ -93,6 +96,16 @@ def model():
 
     return model
 
+def model2():
+
+    model = keras.Sequential()
+    model.add(LSTM(50, activation=activation))
+    model.add(Dropout(0.3))
+    model.add(Dense(pred_len))
+    model.compile(optimizer=keras.optimizers.Adam(learning_rate=0.0001),
+                  loss='mse')
+    return model
+
 # def show_best_hyperparamters(best_hps):
 #     print('Best Hyper Parameters\n')
 #     print('Layer 1 neuron: ', best_hps.get('first_layer_neurons'))
@@ -110,7 +123,7 @@ def calculate_metrics(test: np.ndarray, predict: np.ndarray, identifier: str) ->
     MAPE = mean_absolute_percentage_error(test.flatten(), predict.flatten())
     r2 = r2_score(test.flatten(), predict.flatten())
     print('mse: {}, mae: {}, rmse: {}, mape: {}, R2: {}'.format(MSE, MAE, RMSE, MAPE, r2))
-    f = open("result-lstm-multivariate.txt", 'a')
+    f = open("result-lstm-multivariate-more-feature.txt", 'a')
     f.write(identifier + "  \n")
     f.write('mse: {}, mae: {}, rmse: {}, mape: {}, R2: {}'.format(MSE, MAE, RMSE, MAPE, r2))
     f.write('\n')
@@ -119,8 +132,8 @@ def calculate_metrics(test: np.ndarray, predict: np.ndarray, identifier: str) ->
 
 
 
-df = pd.read_csv('../../data/cleaned_data.csv')
-df = df[['open', 'high', 'low', 'close']]
+df = pd.read_csv('./data/multivariate.csv')
+df = df.drop(['date'], axis = 1)
 len_ = len(df)
 df_train = df.iloc[:int(len_*0.8), :]
 df_val = df.iloc[int(len_*0.8):int(len_*0.9),:].reset_index(drop=True)
@@ -138,7 +151,11 @@ print("Test :", x_test.shape)
 
 # Build the model with the best hp.
 # model = model_builder(best_hps)
-model = model()
+if reduce_complexity:
+    model = model2()
+else:
+    model = model()
+
 
 # stop_training_early = keras.callbacks.EarlyStopping()
 stop_training_early = keras.callbacks.EarlyStopping(monitor="val_loss", patience=10, restore_best_weights=True)
@@ -150,6 +167,12 @@ history = model.fit(x_train, y_train, epochs=60 , verbose=1, shuffle=False, vali
 # model.save('saved_models/' + identifier)
 y_predict = model.predict(x_test)
 calculate_metrics(y_test, y_predict, identifier)
+
+
+plt.plot(history.history['loss'], label='train loss')
+plt.plot(history.history['val_loss'], label='validation loss')
+plt.legend()
+plt.savefig('fig/'+'loss_'+'lookback-'+str(lookback)+'future-'+str(pred_len)+'.png')
 # assert  1==1
 # plt.plot(y_test.flatten(), label='test')
 # plt.plot(y_predict.flatten(), 'r-', label='predict')

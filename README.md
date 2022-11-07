@@ -1,7 +1,7 @@
 # Thesis
 
 This repo is for the study of master thesis. 
-It explores the various versions of Transformers, LSTMS and ARIMA to understand which architecture is more robust towards long range dependency modelling for a dataset with no periodicity. The dataset used is the bitcoin dataset from 2017 till 2022.
+It explores the various versions of Transformers to understand which architecture is more robust towards long range dependency modelling for a dataset with no periodicity, with baselines LSTMS and ARIMA. The dataset used is the bitcoin dataset from 2017 till 2022.
 
 This code is inspired from the code base of Autoformer and Informer. 
 I appreciate the following GitHub repos a lot for their valuable code base:

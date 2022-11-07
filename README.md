@@ -6,7 +6,7 @@ It explores the various versions of Transformers, LSTMS and ARIMA to understand 
 This code is inspired from the code base of Autoformer and Informer. 
 I appreciate the following GitHub repos a lot for their valuable code base:
 
-https://github.com/thuml/Autoformer 
+https://github.com/thuml/Autoformer <br/>
 https://github.com/zhouhaoyi/Informer2020
 
 

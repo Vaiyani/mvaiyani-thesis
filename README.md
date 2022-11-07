@@ -1,6 +1,6 @@
 # Thesis
 
-This repo is for the study of master thesis @ TUM. 
+This repo is for the study of master thesis. 
 It explores the various versions of Transformers, LSTMS and ARIMA to understand which architecture is more robust towards long range dependency modelling for a dataset with no periodicity. The dataset used is the bitcoin dataset from 2017 till 2022.
 
 References:

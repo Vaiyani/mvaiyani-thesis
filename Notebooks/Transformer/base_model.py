@@ -1,5 +1,4 @@
 from data_flow import data_provider
-from exp.exp_basic import Exp_Basic
 from models.Transformer import Transformer
 from models.Autoformer import Autoformer
 from models.Informer import Informer
@@ -20,7 +19,7 @@ import numpy as np
 
 warnings.filterwarnings('ignore')
 
-class Exp_Main():
+class train_test():
     def __init__(self, args):
         self.args = args
         self.train_time = 0
@@ -68,7 +67,7 @@ class Exp_Main():
 
                 # decoder input
                 dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
-                dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
+                dec_inp = torch.cat([batch_y[:, :self.args.decoder_input_len, :], dec_inp], dim=1).float().to(self.device)
                 # encoder - decoder
                 outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
 
@@ -123,13 +122,13 @@ class Exp_Main():
 
                 # decoder input
                 dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
-                dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
+                dec_inp = torch.cat([batch_y[:, :self.args.decoder_input_len, :], dec_inp], dim=1).float().to(self.device)
 
                 # encoder - decoder
                 outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark, batch_y)
 
-                    # print(outputs.shape,batch_y.shape)
-                f_dim = 0
+                # print(outputs.shape,batch_y.shape)
+                f_dim = -1 if self.args.features == 'MS' else 0
                 outputs = outputs[:, -self.args.pred_len:, f_dim:]
                 batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
                 loss = criterion(outputs, batch_y)
@@ -185,7 +184,7 @@ class Exp_Main():
 
                 # decoder input
                 dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
-                dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
+                dec_inp = torch.cat([batch_y[:, :self.args.decoder_input_len, :], dec_inp], dim=1).float().to(self.device)
                 # encoder - decoder
                 outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
                 f_dim = -1 if self.args.features == 'MS' else 0

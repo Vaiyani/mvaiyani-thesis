@@ -10,8 +10,8 @@ class Dataset_btc_hour(Dataset):
                  target='OT', scale=True, timeenc=0, freq='h'):
 
 
-        self.seq_len = size[0]
-        self.label_len = size[1]
+        self.encoder_input_len = size[0]
+        self.decoder_input_len = size[1]
         self.pred_len = size[2]
         # init
 
@@ -68,9 +68,9 @@ class Dataset_btc_hour(Dataset):
 
     def __getitem__(self, index):
         s_begin = index
-        s_end = s_begin + self.seq_len
-        r_begin = s_end - self.label_len
-        r_end = r_begin + self.label_len + self.pred_len
+        s_end = s_begin + self.encoder_input_len
+        r_begin = s_end - self.decoder_input_len
+        r_end = r_begin + self.decoder_input_len + self.pred_len
 
         seq_x = self.data_x[s_begin:s_end]
         seq_y = self.data_y[r_begin:r_end]
@@ -80,7 +80,7 @@ class Dataset_btc_hour(Dataset):
         return seq_x, seq_y, seq_x_mark, seq_y_mark
 
     def __len__(self):
-        return len(self.data_x) - self.seq_len - self.pred_len + 1
+        return len(self.data_x) - self.encoder_input_len - self.pred_len + 1
 
     def inverse_transform(self, data):
         return self.scaler.inverse_transform(data)
@@ -109,7 +109,7 @@ def data_provider(args, flag):
     data_set = Dataset_btc_hour(
         data_path=args.data_path,
         flag=flag,
-        size=[args.seq_len, args.label_len, args.pred_len],
+        size=[args.encoder_input_len, args.decoder_input_len, args.pred_len],
         features=args.features,
         target=args.target,
         timeenc=timeenc,

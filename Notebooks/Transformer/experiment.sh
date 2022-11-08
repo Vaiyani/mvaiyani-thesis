@@ -7,9 +7,9 @@ do
   do
         python main.py \
         --model $model \
-        --seq_len 48 \
+        --encoder_input_len 48 \
         --pred_len 12 \
-        --label_len $decoder_len
+        --decoder_input_len $decoder_len
         rm -r checkpoints
   done
 done
@@ -37,7 +37,7 @@ done
 #            then
 #                python main.py \
 #                --model $model \
-#                --seq_len $lookback \
+#                --encoder_input_len $lookback \
 #                --pred_len $future \
 #                --positional_embedding $pos \
 #                --value_embedding $val \
@@ -45,8 +45,8 @@ done
 #            else
 #                python main.py \
 #                --model $model \
-#                --seq_len $lookback \
-#                --label_len 5 \
+#                --encoder_input_len $lookback \
+#                --decoder_input_len 5 \
 #                --pred_len $future \
 #                --positional_embedding $pos \
 #                --value_embedding $val \
@@ -86,7 +86,7 @@ done
 #            then
 #                python main.py \
 #                --model $model \
-#                --seq_len $lookback \
+#                --encoder_input_len $lookback \
 #                --pred_len $future \
 #                --positional_embedding $pos \
 #                --value_embedding $val \
@@ -94,8 +94,8 @@ done
 #            else
 #                python main.py \
 #                --model $model \
-#                --seq_len $lookback \
-#                --label_len 5 \
+#                --encoder_input_len $lookback \
+#                --decoder_input_len 5 \
 #                --pred_len $future \
 #                --positional_embedding $pos \
 #                --value_embedding $val \
@@ -133,7 +133,7 @@ done
 #              then
 #                  python main.py \
 #                  --model $model \
-#                  --seq_len $lookback \
+#                  --encoder_input_len $lookback \
 #                  --pred_len $future \
 #                  --positional_embedding $pos \
 #                  --value_embedding $val \
@@ -141,8 +141,8 @@ done
 #              else
 #                  python main.py \
 #                  --model $model \
-#                  --seq_len $lookback \
-#                  --label_len 5 \
+#                  --encoder_input_len $lookback \
+#                  --decoder_input_len 5 \
 #                  --pred_len $future \
 #                  --positional_embedding $pos \
 #                  --value_embedding $val \

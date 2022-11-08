@@ -1,7 +1,7 @@
 import argparse
 import os
 import torch
-from base_model import Exp_Main
+from base_model import train_test
 import random
 import numpy as np
 
@@ -9,18 +9,17 @@ fix_seed = 0
 random.seed(fix_seed)
 torch.manual_seed(fix_seed)
 np.random.seed(fix_seed)
-os.environ["CUDA_VISIBLE_DEVICES"] = "6"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 # if __name__ == '__main__':
 
 parser = argparse.ArgumentParser(description='Time Series Forecasting With Transformers')
 
 # basic config
-parser.add_argument('--is_training', type=int, required=False, default=1, help='status')
 parser.add_argument('--model', type=str, required=False, default='Transformer')
 
 # data loader
-parser.add_argument('--data_path', type=str, default='./data.csv', help='data file')
-parser.add_argument('--features', type=str, default='S',
+parser.add_argument('--data_path', type=str, default='./data/multivariate.csv', help='data file')
+parser.add_argument('--features', type=str, default='MS',
                     help='forecasting task, options:[M, S, MS]; M:multivariate predict multivariate, S:univariate predict univariate, MS:multivariate predict univariate')
 parser.add_argument('--target', type=str, default='close', help='target feature in S or MS task')
 parser.add_argument('--freq', type=str, default='h',
@@ -28,18 +27,18 @@ parser.add_argument('--freq', type=str, default='h',
 parser.add_argument('--checkpoints', type=str, default='./checkpoints/', help='location of model checkpoints')
 
 # forecasting task
-parser.add_argument('--seq_len', type=int, default=96, help='input sequence length - encoder input length')
-parser.add_argument('--label_len', type=int, default=48, help='start token length - decoder input length')
-parser.add_argument('--pred_len', type=int, default=96, help='prediction sequence length')
+parser.add_argument('--encoder_input_len', type=int, default=96, help='input sequence length - encoder input length')
+parser.add_argument('--decoder_input_len', type=int, default=48, help='start token length - decoder input length')
+parser.add_argument('--pred_len', type=int, default=12, help='prediction sequence length')
 
 
 # Formers
 parser.add_argument('--positional_embedding', default='True')
-parser.add_argument('--value_embedding', default='False')
+parser.add_argument('--value_embedding', default='True')
 parser.add_argument('--temporal_embedding', default='False')
 
-parser.add_argument('--enc_in', type=int, default=1, help='encoder input size') # DLinear with --individual, use this hyperparameter as the number of channels
-parser.add_argument('--dec_in', type=int, default=1, help='decoder input size')
+parser.add_argument('--enc_in', type=int, default=20, help='encoder input size') # DLinear with --individual, use this hyperparameter as the number of channels
+parser.add_argument('--dec_in', type=int, default=20, help='decoder input size')
 parser.add_argument('--c_out', type=int, default=1, help='output size')
 parser.add_argument('--d_model', type=int, default=512, help='dimension of model')
 parser.add_argument('--n_heads', type=int, default=8, help='num of heads')
@@ -55,7 +54,7 @@ parser.add_argument('--output_attention', action='store_true', help='whether to 
 parser.add_argument('--do_predict', action='store_true', help='whether to predict unseen future data')
 
 # optimization
-parser.add_argument('--train_epochs', type=int, default=10, help='train epochs')
+parser.add_argument('--train_epochs', type=int, default=1, help='train epochs')
 parser.add_argument('--batch_size', type=int, default=32, help='batch size of train input data')
 parser.add_argument('--patience', type=int, default=3, help='early stopping patience')
 parser.add_argument('--learning_rate', type=float, default=0.0001, help='optimizer learning rate')
@@ -72,45 +71,26 @@ args = parser.parse_args()
 
 args.use_gpu = True if torch.cuda.is_available() and args.use_gpu else False
 print("Using GPU") if args.use_gpu else print("Using CPU")
-
-
 print('Args in experiment:')
 print(args)
-Exp = Exp_Main
-
-if args.is_training:
-    setting = '{}_sl-{}_ll-{}_pl-{}_df{}_pos-{}_val-{}_temp-{}'.format(
-        args.model,
-        args.seq_len,
-        args.label_len,
-        args.pred_len,
-        args.d_ff,
-        args.positional_embedding,
-        args.value_embedding,
-        args.temporal_embedding
-    )
-
-    exp = Exp(args)  # set experiments
-    print('>>>>>>>start training : {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
-    exp.train(setting)
-
-    print('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
-    exp.test(setting)
-    torch.cuda.empty_cache()
-else:
-    setting = '{}_sl-{}_ll-{}_pl-{}_df{}_pos-{}_val-{}_temp-{}'.format(
-        args.model,
-        args.seq_len,
-        args.label_len,
-        args.pred_len,
-        args.d_ff,
-        args.positional_embedding,
-        args.value_embedding,
-        args.temporal_embedding
-    )
-    exp = Exp(args)  # set experiments
-    print('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
-    exp.test(setting, test=1)
-    torch.cuda.empty_cache()
 
 
+model = train_test
+model_setting = '{}_sl-{}_ll-{}_pl-{}_df{}_pos-{}_val-{}_temp-{}'.format(
+    args.model,
+    args.encoder_input_len,
+    args.decoder_input_len,
+    args.pred_len,
+    args.d_ff,
+    args.positional_embedding,
+    args.value_embedding,
+    args.temporal_embedding
+)
+
+Model = model(args)  # set experiments
+print('Training: ' + model_setting)
+Model.train(model_setting)
+
+print('Testing')
+Model.test(model_setting)
+torch.cuda.empty_cache()

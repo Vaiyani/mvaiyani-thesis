@@ -166,9 +166,6 @@ class train_test():
 
     def test(self, setting, test=0):
         test_data, test_loader = self._get_data(flag='test')
-        if test:
-            print('loading model')
-            self.model.load_state_dict(torch.load(os.path.join('./checkpoints/' + setting, 'checkpoint.pth')))
         preds = []
         trues = []
         inputx = []
@@ -187,10 +184,10 @@ class train_test():
                 dec_inp = torch.cat([batch_y[:, :self.args.decoder_input_len, :], dec_inp], dim=1).float().to(self.device)
                 # encoder - decoder
                 outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-                f_dim = -1 if self.args.features == 'MS' else 0
+                target_dimension = -1 if self.args.features == 'MS' else 0
                 # print(outputs.shape,batch_y.shape)
-                outputs = outputs[:, -self.args.pred_len:, f_dim:]
-                batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
+                outputs = outputs[:, -self.args.pred_len:, target_dimension:]
+                batch_y = batch_y[:, -self.args.pred_len:, target_dimension:].to(self.device)
                 outputs = outputs.detach().cpu().numpy()
                 batch_y = batch_y.detach().cpu().numpy()
 

@@ -17,7 +17,7 @@ gpu = args.gpu
 reduce_complexity = args.reduce_complexity
 print(args)
 if gpu:
-    os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+    os.environ["CUDA_VISIBLE_DEVICES"] = "4"
     activation = 'tanh'
 else:
     os.environ["CUDA_VISIBLE_DEVICES"] = "-1"

@@ -61,7 +61,7 @@ parser.add_argument('--des', type=str, default='test', help='exp description')
 parser.add_argument('--loss', type=str, default='mse', help='loss function')
 parser.add_argument('--lradj', type=str, default='type1', help='adjust learning rate')
 parser.add_argument('--use_amp', action='store_true', help='use automatic mixed precision training', default=False)
-parser.add_argument('--moving_avg', type=int, default=25, help='window size of moving average')
+parser.add_argument('--moving_avg', type=int, default=25, help='window size of moving average') ## used in the seriec decomposition block of autoformer ##
 
 # GPU
 parser.add_argument('--use_gpu', type=bool, default=True, help='use gpu')

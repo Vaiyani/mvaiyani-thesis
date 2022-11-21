@@ -103,6 +103,7 @@ def model2():
                   loss='mse')
     return model
 
+
 # def show_best_hyperparamters(best_hps):
 #     print('Best Hyper Parameters\n')
 #     print('Layer 1 neuron: ', best_hps.get('first_layer_neurons'))
@@ -149,7 +150,7 @@ print("Test :", x_test.shape)
 model = model()
 
 # stop_training_early = keras.callbacks.EarlyStopping()
-stop_training_early = keras.callbacks.EarlyStopping(monitor="val_loss", patience=10, restore_best_weights=True)
+stop_training_early = keras.callbacks.EarlyStopping(monitor="val_loss", patience=3, restore_best_weights=True)
 history = model.fit(x_train, y_train, epochs=60 , verbose=1, shuffle=False, validation_data=(x_val, y_val),
                    callbacks=[stop_training_early])
 

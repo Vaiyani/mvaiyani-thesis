@@ -100,7 +100,8 @@ def model2():
 
     model = keras.Sequential()
     model.add(LSTM(50, activation=activation))
-    model.add(Dropout(0.3))
+    model.add(Dropout(0.2))
+    model.add(LSTM(50, activation=activation))
     model.add(Dense(pred_len))
     model.compile(optimizer=keras.optimizers.Adam(learning_rate=0.0001),
                   loss='mse')

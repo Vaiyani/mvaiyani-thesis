@@ -83,7 +83,7 @@ def model():
 
     model = keras.Sequential()
     model.add(LSTM(50, activation=activation))
-    model.add(Dropout(0.3))
+    model.add(Dropout(0.2))
     # model.add(LSTM(100, activation=activation, return_sequences=True))
     # model.add(Dropout(0.3))
     # model.add(LSTM(100, activation=activation))

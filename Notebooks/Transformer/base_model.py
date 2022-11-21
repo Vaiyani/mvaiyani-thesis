@@ -71,9 +71,9 @@ class train_test():
                 # encoder - decoder
                 outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
 
-                f_dim = 0
-                outputs = outputs[:, -self.args.pred_len:, f_dim:]
-                batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
+                target_dimension = 0
+                outputs = outputs[:, -self.args.pred_len:, target_dimension:]
+                batch_y = batch_y[:, -self.args.pred_len:, target_dimension:].to(self.device)
 
                 pred = outputs.detach().cpu()
                 true = batch_y.detach().cpu()
@@ -128,9 +128,9 @@ class train_test():
                 outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark, batch_y)
 
                 # print(outputs.shape,batch_y.shape)
-                f_dim = -1 if self.args.features == 'MS' else 0
-                outputs = outputs[:, -self.args.pred_len:, f_dim:]
-                batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
+                target_dimension = -1 if self.args.features == 'MS' else 0
+                outputs = outputs[:, -self.args.pred_len:, target_dimension:]
+                batch_y = batch_y[:, -self.args.pred_len:, target_dimension:].to(self.device)
                 loss = criterion(outputs, batch_y)
                 train_loss.append(loss.item())
 

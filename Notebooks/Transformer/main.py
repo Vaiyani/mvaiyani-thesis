@@ -45,7 +45,6 @@ parser.add_argument('--n_heads', type=int, default=8, help='num of heads')
 parser.add_argument('--e_layers', type=int, default=2, help='num of encoder layers')
 parser.add_argument('--d_layers', type=int, default=1, help='num of decoder layers')
 parser.add_argument('--d_ff', type=int, default=2048, help='dimension of fcn')
-parser.add_argument('--factor', type=int, default=1, help='attn factor')
 parser.add_argument('--dropout', type=float, default=0.05, help='dropout')
 parser.add_argument('--embed', type=str, default='timeF',
                     help='time features encoding, options:[timeF, fixed, learned]')
